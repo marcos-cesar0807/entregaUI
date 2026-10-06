@@ -1,0 +1,692 @@
+[
+  {
+    "name": "type/caption/font-size",
+    "type": "FLOAT",
+    "value": "12px",
+    "layer": "Tipografia"
+  },
+  {
+    "name": "type/caption/line-height",
+    "type": "FLOAT",
+    "value": "16px",
+    "layer": "Tipografia"
+  },
+  {
+    "name": "type/body-sm/font-size",
+    "type": "FLOAT",
+    "value": "13px",
+    "layer": "Tipografia"
+  },
+  {
+    "name": "type/body-sm/line-height",
+    "type": "FLOAT",
+    "value": "18px",
+    "layer": "Tipografia"
+  },
+  {
+    "name": "type/body/font-size",
+    "type": "FLOAT",
+    "value": "14px",
+    "layer": "Tipografia"
+  },
+  {
+    "name": "type/body/line-height",
+    "type": "FLOAT",
+    "value": "20px",
+    "layer": "Tipografia"
+  },
+  {
+    "name": "type/body-lg/font-size",
+    "type": "FLOAT",
+    "value": "16px",
+    "layer": "Tipografia"
+  },
+  {
+    "name": "type/body-lg/line-height",
+    "type": "FLOAT",
+    "value": "24px",
+    "layer": "Tipografia"
+  },
+  {
+    "name": "type/title-sm-h4/font-size",
+    "type": "FLOAT",
+    "value": "18px",
+    "layer": "Tipografia"
+  },
+  {
+    "name": "type/title-sm-h4/line-height",
+    "type": "FLOAT",
+    "value": "24px",
+    "layer": "Tipografia"
+  },
+  {
+    "name": "type/title-h3/font-size",
+    "type": "FLOAT",
+    "value": "20px",
+    "layer": "Tipografia"
+  },
+  {
+    "name": "type/title-h3/line-height",
+    "type": "FLOAT",
+    "value": "28px",
+    "layer": "Tipografia"
+  },
+  {
+    "name": "type/title-lg-h2/font-size",
+    "type": "FLOAT",
+    "value": "24px",
+    "layer": "Tipografia"
+  },
+  {
+    "name": "type/title-lg-h2/line-height",
+    "type": "FLOAT",
+    "value": "32px",
+    "layer": "Tipografia"
+  },
+  {
+    "name": "type/display-h1/font-size",
+    "type": "FLOAT",
+    "value": "28px",
+    "layer": "Tipografia"
+  },
+  {
+    "name": "type/display-h1/line-height",
+    "type": "FLOAT",
+    "value": "34px",
+    "layer": "Tipografia"
+  },
+  {
+    "name": "space/4",
+    "type": "FLOAT",
+    "value": "4px",
+    "layer": "Espaçamento"
+  },
+  {
+    "name": "space/8",
+    "type": "FLOAT",
+    "value": "8px",
+    "layer": "Espaçamento"
+  },
+  {
+    "name": "space/12",
+    "type": "FLOAT",
+    "value": "12px",
+    "layer": "Espaçamento"
+  },
+  {
+    "name": "space/16",
+    "type": "FLOAT",
+    "value": "16px",
+    "layer": "Espaçamento"
+  },
+  {
+    "name": "space/24",
+    "type": "FLOAT",
+    "value": "24px",
+    "layer": "Espaçamento"
+  },
+  {
+    "name": "space/32",
+    "type": "FLOAT",
+    "value": "32px",
+    "layer": "Espaçamento"
+  },
+  {
+    "name": "space/40",
+    "type": "FLOAT",
+    "value": "40px",
+    "layer": "Espaçamento"
+  },
+  {
+    "name": "space/64",
+    "type": "FLOAT",
+    "value": "64px",
+    "layer": "Espaçamento"
+  },
+  {
+    "name": "color/purple/50",
+    "type": "COLOR",
+    "value": "#efedfc",
+    "layer": "Primitivos de cor"
+  },
+  {
+    "name": "color/purple/100",
+    "type": "COLOR",
+    "value": "#dfdbfa",
+    "layer": "Primitivos de cor"
+  },
+  {
+    "name": "color/purple/200",
+    "type": "COLOR",
+    "value": "#c0b7f5",
+    "layer": "Primitivos de cor"
+  },
+  {
+    "name": "color/purple/300",
+    "type": "COLOR",
+    "value": "#988bef",
+    "layer": "Primitivos de cor"
+  },
+  {
+    "name": "color/purple/400",
+    "type": "COLOR",
+    "value": "#6c5ae8",
+    "layer": "Primitivos de cor"
+  },
+  {
+    "name": "color/purple/500",
+    "type": "COLOR",
+    "value": "#5b46e5",
+    "layer": "Primitivos de cor"
+  },
+  {
+    "name": "color/purple/600",
+    "type": "COLOR",
+    "value": "#331cc9",
+    "layer": "Primitivos de cor"
+  },
+  {
+    "name": "color/purple/700",
+    "type": "COLOR",
+    "value": "#2a17a5",
+    "layer": "Primitivos de cor"
+  },
+  {
+    "name": "color/purple/800",
+    "type": "COLOR",
+    "value": "#20127d",
+    "layer": "Primitivos de cor"
+  },
+  {
+    "name": "color/purple/900",
+    "type": "COLOR",
+    "value": "#140b50",
+    "layer": "Primitivos de cor"
+  },
+  {
+    "name": "color/navy/50",
+    "type": "COLOR",
+    "value": "#f2f3f7",
+    "layer": "Primitivos de cor"
+  },
+  {
+    "name": "color/navy/100",
+    "type": "COLOR",
+    "value": "#e5e7f0",
+    "layer": "Primitivos de cor"
+  },
+  {
+    "name": "color/navy/200",
+    "type": "COLOR",
+    "value": "#ccd0e1",
+    "layer": "Primitivos de cor"
+  },
+  {
+    "name": "color/navy/300",
+    "type": "COLOR",
+    "value": "#acb2ce",
+    "layer": "Primitivos de cor"
+  },
+  {
+    "name": "color/navy/400",
+    "type": "COLOR",
+    "value": "#8892b9",
+    "layer": "Primitivos de cor"
+  },
+  {
+    "name": "color/navy/500",
+    "type": "COLOR",
+    "value": "#6874a6",
+    "layer": "Primitivos de cor"
+  },
+  {
+    "name": "color/navy/600",
+    "type": "COLOR",
+    "value": "#556091",
+    "layer": "Primitivos de cor"
+  },
+  {
+    "name": "color/navy/700",
+    "type": "COLOR",
+    "value": "#464f77",
+    "layer": "Primitivos de cor"
+  },
+  {
+    "name": "color/navy/800",
+    "type": "COLOR",
+    "value": "#353c5a",
+    "layer": "Primitivos de cor"
+  },
+  {
+    "name": "color/navy/900",
+    "type": "COLOR",
+    "value": "#1e2233",
+    "layer": "Primitivos de cor"
+  },
+  {
+    "name": "color/gray/50",
+    "type": "COLOR",
+    "value": "#f6f7f8",
+    "layer": "Primitivos de cor"
+  },
+  {
+    "name": "color/gray/100",
+    "type": "COLOR",
+    "value": "#e6e8eb",
+    "layer": "Primitivos de cor"
+  },
+  {
+    "name": "color/gray/200",
+    "type": "COLOR",
+    "value": "#ced5de",
+    "layer": "Primitivos de cor"
+  },
+  {
+    "name": "color/gray/300",
+    "type": "COLOR",
+    "value": "#b0baca",
+    "layer": "Primitivos de cor"
+  },
+  {
+    "name": "color/gray/400",
+    "type": "COLOR",
+    "value": "#8e9db3",
+    "layer": "Primitivos de cor"
+  },
+  {
+    "name": "color/gray/500",
+    "type": "COLOR",
+    "value": "#70839e",
+    "layer": "Primitivos de cor"
+  },
+  {
+    "name": "color/gray/600",
+    "type": "COLOR",
+    "value": "#475569",
+    "layer": "Primitivos de cor"
+  },
+  {
+    "name": "color/gray/700",
+    "type": "COLOR",
+    "value": "#4c5b71",
+    "layer": "Primitivos de cor"
+  },
+  {
+    "name": "color/gray/800",
+    "type": "COLOR",
+    "value": "#3a4555",
+    "layer": "Primitivos de cor"
+  },
+  {
+    "name": "color/gray/900",
+    "type": "COLOR",
+    "value": "#252c37",
+    "layer": "Primitivos de cor"
+  },
+  {
+    "name": "color/green/50",
+    "type": "COLOR",
+    "value": "#eaf7ee",
+    "layer": "Primitivos de cor"
+  },
+  {
+    "name": "color/green/500",
+    "type": "COLOR",
+    "value": "#22a559",
+    "layer": "Primitivos de cor"
+  },
+  {
+    "name": "color/green/700",
+    "type": "COLOR",
+    "value": "#15803d",
+    "layer": "Primitivos de cor"
+  },
+  {
+    "name": "color/amber/50",
+    "type": "COLOR",
+    "value": "#fef6e7",
+    "layer": "Primitivos de cor"
+  },
+  {
+    "name": "color/amber/500",
+    "type": "COLOR",
+    "value": "#f5a524",
+    "layer": "Primitivos de cor"
+  },
+  {
+    "name": "color/amber/700",
+    "type": "COLOR",
+    "value": "#b45309",
+    "layer": "Primitivos de cor"
+  },
+  {
+    "name": "color/red/50",
+    "type": "COLOR",
+    "value": "#fdeded",
+    "layer": "Primitivos de cor"
+  },
+  {
+    "name": "color/red/500",
+    "type": "COLOR",
+    "value": "#e5484d",
+    "layer": "Primitivos de cor"
+  },
+  {
+    "name": "color/red/700",
+    "type": "COLOR",
+    "value": "#b91c1c",
+    "layer": "Primitivos de cor"
+  },
+  {
+    "name": "color/blue/50",
+    "type": "COLOR",
+    "value": "#eaf3fe",
+    "layer": "Primitivos de cor"
+  },
+  {
+    "name": "color/blue/500",
+    "type": "COLOR",
+    "value": "#3b82f6",
+    "layer": "Primitivos de cor"
+  },
+  {
+    "name": "color/blue/700",
+    "type": "COLOR",
+    "value": "#1d4ed8",
+    "layer": "Primitivos de cor"
+  },
+  {
+    "name": "color/white",
+    "type": "COLOR",
+    "value": "#ffffff",
+    "layer": "Primitivos de cor"
+  },
+  {
+    "name": "color/black",
+    "type": "COLOR",
+    "value": "#000000",
+    "layer": "Primitivos de cor"
+  },
+  {
+    "name": "color/bg/primary",
+    "type": "COLOR",
+    "value": "var(--color-gray-50)",
+    "layer": "Semânticos de cor"
+  },
+  {
+    "name": "color/bg/secondary",
+    "type": "COLOR",
+    "value": "var(--color-white)",
+    "layer": "Semânticos de cor"
+  },
+  {
+    "name": "color/bg/tertiary",
+    "type": "COLOR",
+    "value": "var(--color-gray-100)",
+    "layer": "Semânticos de cor"
+  },
+  {
+    "name": "color/bg/inverse",
+    "type": "COLOR",
+    "value": "var(--color-navy-900)",
+    "layer": "Semânticos de cor"
+  },
+  {
+    "name": "color/bg/brand",
+    "type": "COLOR",
+    "value": "var(--color-purple-500)",
+    "layer": "Semânticos de cor"
+  },
+  {
+    "name": "color/text/primary",
+    "type": "COLOR",
+    "value": "var(--color-navy-900)",
+    "layer": "Semânticos de cor"
+  },
+  {
+    "name": "color/text/secondary",
+    "type": "COLOR",
+    "value": "var(--color-gray-500)",
+    "layer": "Semânticos de cor"
+  },
+  {
+    "name": "color/text/disabled",
+    "type": "COLOR",
+    "value": "var(--color-gray-300)",
+    "layer": "Semânticos de cor"
+  },
+  {
+    "name": "color/text/inverse",
+    "type": "COLOR",
+    "value": "var(--color-white)",
+    "layer": "Semânticos de cor"
+  },
+  {
+    "name": "color/text/brand",
+    "type": "COLOR",
+    "value": "var(--color-purple-500)",
+    "layer": "Semânticos de cor"
+  },
+  {
+    "name": "color/border/default",
+    "type": "COLOR",
+    "value": "var(--color-gray-200)",
+    "layer": "Semânticos de cor"
+  },
+  {
+    "name": "color/border/strong",
+    "type": "COLOR",
+    "value": "var(--color-gray-400)",
+    "layer": "Semânticos de cor"
+  },
+  {
+    "name": "color/border/brand",
+    "type": "COLOR",
+    "value": "var(--color-purple-500)",
+    "layer": "Semânticos de cor"
+  },
+  {
+    "name": "color/action/primary/default",
+    "type": "COLOR",
+    "value": "var(--color-purple-500)",
+    "layer": "Semânticos de cor"
+  },
+  {
+    "name": "color/action/primary/hover",
+    "type": "COLOR",
+    "value": "var(--color-purple-600)",
+    "layer": "Semânticos de cor"
+  },
+  {
+    "name": "color/action/primary/pressed",
+    "type": "COLOR",
+    "value": "var(--color-purple-700)",
+    "layer": "Semânticos de cor"
+  },
+  {
+    "name": "color/action/primary/disabled",
+    "type": "COLOR",
+    "value": "var(--color-gray-200)",
+    "layer": "Semânticos de cor"
+  },
+  {
+    "name": "color/feedback/success/bg",
+    "type": "COLOR",
+    "value": "var(--color-green-50)",
+    "layer": "Semânticos de cor"
+  },
+  {
+    "name": "color/feedback/success/text",
+    "type": "COLOR",
+    "value": "var(--color-green-700)",
+    "layer": "Semânticos de cor"
+  },
+  {
+    "name": "color/feedback/success/border",
+    "type": "COLOR",
+    "value": "var(--color-green-500)",
+    "layer": "Semânticos de cor"
+  },
+  {
+    "name": "color/feedback/warning/bg",
+    "type": "COLOR",
+    "value": "var(--color-amber-50)",
+    "layer": "Semânticos de cor"
+  },
+  {
+    "name": "color/feedback/warning/text",
+    "type": "COLOR",
+    "value": "var(--color-amber-700)",
+    "layer": "Semânticos de cor"
+  },
+  {
+    "name": "color/feedback/warning/border",
+    "type": "COLOR",
+    "value": "var(--color-amber-500)",
+    "layer": "Semânticos de cor"
+  },
+  {
+    "name": "color/feedback/error/bg",
+    "type": "COLOR",
+    "value": "var(--color-red-50)",
+    "layer": "Semânticos de cor"
+  },
+  {
+    "name": "color/feedback/error/text",
+    "type": "COLOR",
+    "value": "var(--color-red-700)",
+    "layer": "Semânticos de cor"
+  },
+  {
+    "name": "color/feedback/error/border",
+    "type": "COLOR",
+    "value": "var(--color-red-500)",
+    "layer": "Semânticos de cor"
+  },
+  {
+    "name": "color/feedback/info/bg",
+    "type": "COLOR",
+    "value": "var(--color-blue-50)",
+    "layer": "Semânticos de cor"
+  },
+  {
+    "name": "color/feedback/info/text",
+    "type": "COLOR",
+    "value": "var(--color-blue-700)",
+    "layer": "Semânticos de cor"
+  },
+  {
+    "name": "color/feedback/info/border",
+    "type": "COLOR",
+    "value": "var(--color-blue-500)",
+    "layer": "Semânticos de cor"
+  },
+  {
+    "name": "radius/none",
+    "type": "FLOAT",
+    "value": "0px",
+    "layer": "Raios primitivos"
+  },
+  {
+    "name": "radius/xs",
+    "type": "FLOAT",
+    "value": "4px",
+    "layer": "Raios primitivos"
+  },
+  {
+    "name": "radius/sm",
+    "type": "FLOAT",
+    "value": "8px",
+    "layer": "Raios primitivos"
+  },
+  {
+    "name": "radius/md",
+    "type": "FLOAT",
+    "value": "12px",
+    "layer": "Raios primitivos"
+  },
+  {
+    "name": "radius/lg",
+    "type": "FLOAT",
+    "value": "16px",
+    "layer": "Raios primitivos"
+  },
+  {
+    "name": "radius/xl",
+    "type": "FLOAT",
+    "value": "24px",
+    "layer": "Raios primitivos"
+  },
+  {
+    "name": "radius/2xl",
+    "type": "FLOAT",
+    "value": "32px",
+    "layer": "Raios primitivos"
+  },
+  {
+    "name": "radius/full",
+    "type": "FLOAT",
+    "value": "9999px",
+    "layer": "Raios primitivos"
+  },
+  {
+    "name": "radius/button",
+    "type": "FLOAT",
+    "value": "var(--radius-full)",
+    "layer": "Raios semânticos"
+  },
+  {
+    "name": "radius/input",
+    "type": "FLOAT",
+    "value": "var(--radius-full)",
+    "layer": "Raios semânticos"
+  },
+  {
+    "name": "radius/chip",
+    "type": "FLOAT",
+    "value": "var(--radius-full)",
+    "layer": "Raios semânticos"
+  },
+  {
+    "name": "radius/avatar",
+    "type": "FLOAT",
+    "value": "var(--radius-full)",
+    "layer": "Raios semânticos"
+  },
+  {
+    "name": "radius/card",
+    "type": "FLOAT",
+    "value": "var(--radius-xl)",
+    "layer": "Raios semânticos"
+  },
+  {
+    "name": "radius/modal",
+    "type": "FLOAT",
+    "value": "var(--radius-xl)",
+    "layer": "Raios semânticos"
+  },
+  {
+    "name": "size/touch-target-min",
+    "type": "FLOAT",
+    "value": "48px",
+    "layer": "Dimensionamento"
+  },
+  {
+    "name": "color/feedback/color/feedback/brand",
+    "type": "COLOR",
+    "value": "var(--color-purple-50)",
+    "layer": "Semânticos de cor"
+  },
+  {
+    "name": "color/feedback/color/feedback/text",
+    "type": "COLOR",
+    "value": "var(--color-purple-700)",
+    "layer": "Semânticos de cor"
+  },
+  {
+    "name": "color/feedback/color/feedback/border",
+    "type": "COLOR",
+    "value": "var(--color-purple-500)",
+    "layer": "Semânticos de cor"
+  }
+]

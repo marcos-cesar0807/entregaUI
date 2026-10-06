@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="pt-BR">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Wireframe — Professor na tela da disciplina</title>
+<style>
+:root{--bg:#f6f7f8;--card:#fff;--ink:#1e2233;--mut:#70839e;--line:#ced5de;--ph:#e6e8eb;--brand:#5b46e5;--brand-bg:#efedfc;--note:#fef6e7;--note-ink:#b45309}
+*{box-sizing:border-box}
+body{margin:0;padding:32px 16px;background:#dfe3e8;font:14px/1.4 system-ui,sans-serif;color:var(--ink)}
+h1{font-size:20px;margin:0 0 4px}.lead{color:#475569;margin:0 0 32px;max-width:720px}
+.row{display:flex;gap:48px;flex-wrap:wrap;justify-content:center}
+.col{width:375px}.col>h2{font-size:14px;margin:0 0 12px}
+.phone{position:relative;width:375px;height:760px;background:var(--bg);border-radius:32px;border:8px solid var(--ink);overflow:hidden}
+.scroll{height:100%;overflow:auto;padding-bottom:88px}
+.ph{background:var(--ph);border-radius:8px}
+.banner{height:160px;border-radius:0;display:grid;place-items:center;color:var(--mut)}
+.body{padding:24px 16px}
+.badge{display:inline-block;background:#fdeded;color:#b91c1c;border-radius:999px;padding:2px 12px;font-size:12px}
+h3{font-size:22px;margin:8px 0}
+.mut{color:var(--mut)}
+.line{height:10px;margin:6px 0}
+.hr{border:0;border-top:1px solid var(--line);margin:16px 0}
+/* A: linha do professor (o que muda) */
+.host{display:flex;gap:12px;align-items:center;width:100%;text-align:left;background:none;border:0;padding:8px 0;font:inherit;cursor:pointer;outline:2px dashed var(--brand);outline-offset:4px;border-radius:12px}
+.tname{display:inline;color:var(--ink)}
+.ttl{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.av{border-radius:50%;background:var(--ph);border:1px solid var(--line);display:grid;place-items:center;color:var(--mut);font-size:11px;flex:none}
+.av.s{width:48px;height:48px}.av.l{width:112px;height:112px;font-size:13px}
+.host b{display:block}.chev{margin-left:auto;color:var(--mut);font-size:20px}
+.cta{position:absolute;left:0;right:0;bottom:0;padding:16px;background:var(--card);border-top:1px solid var(--line)}
+.btn{display:block;width:100%;padding:12px;border-radius:999px;background:var(--brand);color:#fff;text-align:center;font-weight:600}
+/* B: sheet */
+.dim{position:absolute;inset:0;background:rgba(30,34,51,.55)}
+.sheet{position:absolute;left:0;right:0;bottom:0;top:56px;background:var(--bg);border-radius:24px 24px 0 0;padding:16px;overflow:auto}
+.close{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--card);font-size:18px;display:grid;place-items:center;margin-left:auto}
+.pc{background:var(--card);border-radius:24px;padding:24px 16px;display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:center;box-shadow:0 1px 4px rgba(0,0,0,.1);margin-top:8px}
+.who{text-align:center}.who h4{font-size:22px;margin:8px 0 0}
+.stats>div{padding:8px 0;border-bottom:1px solid var(--line)}.stats>div:last-child{border:0}
+.stats b{font-size:22px;display:block}.stats span{font-size:12px}
+.facts{list-style:none;padding:0;margin:24px 0 0;display:grid;gap:16px}
+.facts li{display:flex;gap:16px;align-items:flex-start}
+.ico{width:24px;height:24px;border:1.5px solid var(--mut);border-radius:6px;flex:none}
+.cta2{margin-top:24px}.ghost{display:block;padding:12px;border:1px solid var(--ink);border-radius:999px;text-align:center;font-weight:600}
+/* cartão v2 */
+.pcard{background:var(--card);border-radius:24px;padding:12px;box-shadow:0 1px 4px rgba(0,0,0,.1);margin-top:8px}
+.cover{height:110px;border-radius:16px;display:grid;place-items:center;color:var(--mut);font-size:12px}
+.pcard .av.l{width:88px;height:88px;margin:-44px 0 0 12px;border:4px solid var(--card)}
+.pcard h4{font-size:22px;margin:8px 12px 0}.pcard .role{margin:0 12px;color:var(--mut)}
+.chips{display:flex;gap:8px;margin:12px;flex-wrap:wrap}.chip{background:var(--ph);border-radius:999px;padding:6px 12px;font-size:13px}.chip.o{background:none;border:1px solid var(--line)}
+.st{display:grid;grid-template-columns:repeat(3,1fr);margin:16px 0;text-align:center}
+.st>div+div{border-left:1px solid var(--line)}.st b{display:block;font-size:18px}.st span{font-size:12px;color:var(--mut)}
+.pcard .btn{background:var(--brand);margin:0 4px 4px}
+/* mescla */
+.avw{position:relative;width:88px;margin-left:12px}.avw .av.l{margin:-44px 0 0}
+.seal{position:absolute;right:-2px;bottom:2px;width:28px;height:28px;border-radius:50%;background:var(--brand);color:#fff;display:grid;place-items:center;font-size:14px;border:2px solid var(--card)}
+.facts .ico{margin-top:2px}.sheet{padding-bottom:96px}
+.sticky{position:absolute;left:0;right:0;bottom:0;padding:16px;background:var(--bg);border-top:1px solid var(--line)}
+.sticky .btn{margin:0}
+/* notas */
+.notes{max-width:1100px;margin:48px auto 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.notes section{background:var(--card);border-radius:16px;padding:16px}
+.notes h2{font-size:15px;margin:0 0 8px}.notes ul{margin:0;padding-left:20px}
+.tag{background:var(--note);color:var(--note-ink);border-radius:4px;padding:0 6px;font-size:12px}
+</style>
+<h1>Professor na tela da disciplina</h1>
+<p class="lead">Inspirado no “Stay with Allison” do Airbnb: uma linha curta na tela da disciplina que abre uma folha (bottom sheet) com o cartão do professor. Cinza = wireframe; roxo tracejado = a linha clicável. <span class="tag">âmbar</span> = dado que ainda não existe.</p>
+
+<div class="row">
+  <div class="col">
+    <h2>1 · Tela da disciplina (linha do professor)</h2>
+    <div class="phone">
+      <div class="scroll">
+        <div class="ph banner">imagem da disciplina</div>
+        <div class="body">
+          <span class="badge">Últimas vagas</span>
+          <h3>Design de Interfaces</h3>
+          <div class="ph line" style="width:100%"></div><div class="ph line" style="width:80%"></div>
+          <hr class="hr">
+          <button class="host" type="button" aria-haspopup="dialog" aria-label="Ver perfil de Cláudia Ribeiro">
+            <span class="av s">foto</span>
+            <span style="min-width:0"><span class="ttl"><span class="mut">Aula com</span> <b class="tname">Cláudia Ribeiro</b></span><br><span class="mut">Product designer · 10 anos de experiência</span></span>
+            <span class="chev" aria-hidden="true">›</span>
+          </button>
+          <hr class="hr">
+          <div class="mut">🕒 Seg/Qua · 19h–21h</div>
+          <div class="mut" style="margin-top:8px">🎓 4 vagas disponíveis</div>
+          <h3 style="font-size:16px;margin-top:24px">Sua agenda com esta disciplina</h3>
+          <div class="ph" style="height:140px"></div>
+        </div>
+      </div>
+      <div class="cta"><span class="btn">Adicionar disciplina</span></div>
+    </div>
+  </div>
+
+  <div class="col">
+    <h2>2 · Folha do professor (ao tocar na linha)</h2>
+    <div class="phone">
+      <div class="scroll" style="opacity:.4"><div class="ph banner">…</div></div>
+      <div class="dim"></div>
+      <div class="sheet" role="dialog" aria-label="Perfil do professor">
+        <div class="close" aria-label="Fechar">✕</div>
+        <div class="pcard">
+          <div class="ph cover">capa (ilustração da disciplina)</div>
+          <div class="avw"><div class="av l">foto</div><span class="seal" aria-hidden="true">✓</span></div>
+          <h4>Cláudia Ribeiro</h4>
+          <div class="role">Professora · Product designer</div>
+          <div class="chips"><span class="chip">Design</span><span class="chip">Programação</span><span class="chip o">+2</span></div>
+          <div class="st">
+            <div><b>3</b><span>disciplinas</span></div>
+            <div><b>10 anos</b><span>lecionando <span class="tag">novo</span></span></div>
+            <div><b>★ 4,9</b><span>avaliação <span class="tag">novo</span></span></div>
+          </div>
+        </div>
+        <ul class="facts">
+          <li><span class="ico"></span><span>Atuação: Product designer há 10 anos</span></li>
+          <li><span class="ico"></span><span>Formação: <span class="tag">novo</span> Design — USP</span></li>
+          <li><span class="ico"></span><span>Sobre: também leciona programação para quem vem de outras áreas.</span></li>
+          <li><span class="ico"></span><span>Fun fact: <span class="tag">novo</span> mantém um podcast sobre design</span></li>
+        </ul>
+      </div>
+      <div class="sticky"><span class="btn">Ver outras disciplinas (3)</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="notes">
+  <section><h2>O que muda no código</h2><ul>
+    <li>Item do professor em <code>DisciplineDetail</code> sai de “ícone + nome-link” e vira linha com avatar, nome e uma linha de apoio.</li>
+    <li>Folha nova (organismo) com cartão de perfil (capa, avatar sobreposto, áreas, 3 métricas, CTA); hoje <code>onOpenTeacher</code> já existe.</li>
+  </ul></section>
+  <section><h2>Acessibilidade</h2><ul>
+    <li>Linha inteira é um <code>&lt;button&gt;</code> com nome acessível; alvo ≥ 44px (2.5.8). Seta indica que é clicável (1.4.1).</li>
+    <li>Folha: <code>role="dialog"</code>, Esc fecha e devolve foco à linha, foco preso dentro.</li>
+    <li>Foto com <code>alt=""</code> (nome já está no texto).</li>
+  </ul></section>
+  <section><h2>Dados: o que temos × falta</h2><ul>
+    <li>Temos: nome, bio curta (<code>teacherBios</code>).</li>
+    <li>Falta (fictício, marcado “novo”): foto, anos, avaliação, formação, temas, nº de disciplinas.</li>
+    <li>Sugestão: manter só o que dá pra defender; cortar avaliação se não houver origem real.</li>
+  </ul></section>
+  <section><h2>Perguntas pra você</h2><ul>
+    <li>Folha inferior (como no Airbnb) ou modal centralizado?</li>
+    <li>Quais estatísticas ficam no cartão (máx. 3)?</li>
+    <li>Incluir “Outras disciplinas do professor”? Leva a T1 filtrada.</li>
+  </ul></section>
+</div>

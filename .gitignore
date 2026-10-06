@@ -1,0 +1,9 @@
+node_modules/
+dist/
+offline/
+storybook-static/
+.DS_Store
+._*
+*.tsbuildinfo
+.claude/
+.playwright-mcp/

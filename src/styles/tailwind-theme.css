@@ -1,0 +1,116 @@
+/* Gerado de figma-tokens.json em 2026-09-25. Namespace @theme do Tailwind v4.
+   Valores literais (nao var()) para evitar auto-referencia de custom property
+   com mesmo nome de figma-tokens.css. Regenerar os dois arquivos juntos. */
+@theme {
+  /* Cor — primitivos e semanticos */
+  --color-purple-50: #efedfc;
+  --color-purple-100: #dfdbfa;
+  --color-purple-200: #c0b7f5;
+  --color-purple-300: #988bef;
+  --color-purple-400: #6c5ae8;
+  --color-purple-500: #5b46e5;
+  --color-purple-600: #331cc9;
+  --color-purple-700: #2a17a5;
+  --color-purple-800: #20127d;
+  --color-purple-900: #140b50;
+  --color-navy-50: #f2f3f7;
+  --color-navy-100: #e5e7f0;
+  --color-navy-200: #ccd0e1;
+  --color-navy-300: #acb2ce;
+  --color-navy-400: #8892b9;
+  --color-navy-500: #6874a6;
+  --color-navy-600: #556091;
+  --color-navy-700: #464f77;
+  --color-navy-800: #353c5a;
+  --color-navy-900: #1e2233;
+  --color-gray-50: #f6f7f8;
+  --color-gray-100: #e6e8eb;
+  --color-gray-200: #ced5de;
+  --color-gray-300: #b0baca;
+  --color-gray-400: #8e9db3;
+  --color-gray-500: #70839e;
+  --color-gray-600: #475569;
+  --color-gray-700: #4c5b71;
+  --color-gray-800: #3a4555;
+  --color-gray-900: #252c37;
+  --color-green-50: #eaf7ee;
+  --color-green-500: #22a559;
+  --color-green-700: #15803d;
+  --color-amber-50: #fef6e7;
+  --color-amber-500: #f5a524;
+  --color-amber-700: #b45309;
+  --color-red-50: #fdeded;
+  --color-red-500: #e5484d;
+  --color-red-700: #b91c1c;
+  --color-blue-50: #eaf3fe;
+  --color-blue-500: #3b82f6;
+  --color-blue-700: #1d4ed8;
+  --color-white: #ffffff;
+  --color-black: #000000;
+  --color-bg-primary: var(--color-gray-50);
+  --color-bg-secondary: var(--color-white);
+  --color-bg-tertiary: var(--color-gray-100);
+  --color-bg-inverse: var(--color-navy-900);
+  --color-bg-brand: var(--color-purple-500);
+  --color-text-primary: var(--color-navy-900);
+  --color-text-secondary: var(--color-gray-500);
+  --color-text-disabled: var(--color-gray-300);
+  --color-text-inverse: var(--color-white);
+  --color-text-brand: var(--color-purple-500);
+  --color-border-default: var(--color-gray-200);
+  --color-border-strong: var(--color-gray-400);
+  --color-border-brand: var(--color-purple-500);
+  --color-action-primary-default: var(--color-purple-500);
+  --color-action-primary-hover: var(--color-purple-600);
+  --color-action-primary-pressed: var(--color-purple-700);
+  --color-action-primary-disabled: var(--color-gray-200);
+  --color-feedback-success-bg: var(--color-green-50);
+  --color-feedback-success-text: var(--color-green-700);
+  --color-feedback-success-border: var(--color-green-500);
+  --color-feedback-warning-bg: var(--color-amber-50);
+  --color-feedback-warning-text: var(--color-amber-700);
+  --color-feedback-warning-border: var(--color-amber-500);
+  --color-feedback-error-bg: var(--color-red-50);
+  --color-feedback-error-text: var(--color-red-700);
+  --color-feedback-error-border: var(--color-red-500);
+  --color-feedback-info-bg: var(--color-blue-50);
+  --color-feedback-info-text: var(--color-blue-700);
+  --color-feedback-info-border: var(--color-blue-500);
+  --color-feedback-brand-brand: var(--color-purple-50);
+  --color-feedback-brand-text: var(--color-purple-700);
+  --color-feedback-brand-border: var(--color-purple-500);
+
+  /* Tipografia */
+  --text-caption: 12px;
+  --text-caption--line-height: 16px;
+  --text-body-sm: 13px;
+  --text-body-sm--line-height: 18px;
+  --text-body: 14px;
+  --text-body--line-height: 20px;
+  --text-body-lg: 16px;
+  --text-body-lg--line-height: 24px;
+  --text-title-sm-h4: 18px;
+  --text-title-sm-h4--line-height: 24px;
+  --text-title-h3: 20px;
+  --text-title-h3--line-height: 28px;
+  --text-title-lg-h2: 24px;
+  --text-title-lg-h2--line-height: 32px;
+  --text-display-h1: 28px;
+  --text-display-h1--line-height: 34px;
+
+  /* Raio — primitivos e semanticos */
+  --radius-none: 0px;
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-2xl: 32px;
+  --radius-full: 9999px;
+  --radius-button: 9999px;
+  --radius-input: 9999px;
+  --radius-chip: 9999px;
+  --radius-avatar: 9999px;
+  --radius-card: 24px;
+  --radius-modal: 24px;
+}

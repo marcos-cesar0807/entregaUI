@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="pt-BR">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Wireframe — Início e navbar flutuante</title>
+<style>
+:root{--bg:#f6f7f8;--card:#fff;--ink:#1e2233;--mut:#70839e;--line:#ced5de;--ph:#e6e8eb;--brand:#5b46e5;--brand-bg:#efedfc;--ok:#15803d;--ok-bg:#e8f6ec;--warn:#b45309;--warn-bg:#fef6e7;--note:#fef6e7;--note-ink:#b45309}
+*{box-sizing:border-box}
+body{margin:0;padding:32px 16px;background:#dfe3e8;font:14px/1.4 system-ui,sans-serif;color:var(--ink)}
+h1{font-size:20px;margin:0 0 4px}.lead{color:#475569;margin:0 0 32px;max-width:860px}
+.row{display:flex;gap:48px;flex-wrap:wrap;justify-content:center}
+.col{width:375px}.col>h2{font-size:14px;margin:0 0 4px}.col>.why{color:#475569;margin:0 0 12px;min-height:60px}
+.phone{position:relative;width:375px;height:760px;background:var(--bg);border-radius:32px;border:8px solid var(--ink);overflow:hidden}
+.scroll{height:100%;overflow:auto;padding:24px 16px 120px}
+.ph{background:var(--ph);border-radius:8px;display:grid;place-items:center;color:var(--mut);font-size:12px}
+.mut{color:var(--mut)}.c{text-align:center}.sm{font-size:12px}
+.top{display:flex;justify-content:space-between;align-items:center;min-height:40px;margin-bottom:16px}
+.avatar{width:40px;height:40px;border-radius:50%;background:var(--ph);display:grid;place-items:center;color:var(--mut);font-size:12px}
+.x{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;background:var(--card)}
+h3{font-size:24px;line-height:1.2;margin:0}
+h4{font-size:16px;margin:24px 0 8px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-top:16px}
+.hero{background:var(--brand-bg);border:0}
+.hero.done{background:var(--ok-bg)}
+.pill{display:inline-block;border-radius:999px;padding:2px 8px;font-size:12px;font-weight:600}
+.pill.warn{background:var(--warn-bg);color:var(--warn)}.pill.ok{background:var(--card);color:var(--ok)}
+.btn{display:block;width:100%;padding:12px;border-radius:999px;background:var(--brand);color:#fff;text-align:center;font-weight:600;margin-top:12px}
+.btn.sec{background:var(--card);color:var(--brand);border:1px solid var(--brand)}
+.link{display:block;text-align:center;color:var(--brand);font-weight:600;padding:12px 0 0}
+.tag{background:var(--note);color:var(--note-ink);border-radius:4px;padding:0 4px;font-size:12px}
+.row2{display:flex;justify-content:space-between;align-items:center;padding:8px 0}
+.hr{border:0;border-top:1px solid var(--line);margin:8px 0}
+.msg{display:flex;gap:12px;border-radius:12px;padding:12px;margin-top:8px;background:var(--card);border:1px solid var(--line)}
+.msg.warn{background:var(--warn-bg);border-color:transparent}
+.msg b{display:block}
+.progress{height:8px;border-radius:999px;background:var(--card);margin-top:12px;overflow:hidden}.progress i{display:block;height:100%;background:var(--brand)}
+/* agenda (mesma da T4) */
+.grid{display:grid;grid-template-columns:32px repeat(5,1fr);gap:4px;font-size:11px}
+.grid span{height:28px;border-radius:4px;display:grid;place-items:center}
+.old{background:var(--ph);color:var(--mut)}.new{background:var(--brand);color:#fff;font-weight:600}
+.legend{display:flex;gap:16px;font-size:12px;margin-top:8px}.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-2px;margin-right:4px}
+/* T1 */
+.search{border:1px solid var(--line);border-radius:999px;padding:12px 16px;background:var(--card);color:var(--mut)}
+.chips{display:flex;gap:8px;margin-top:12px;overflow:hidden}.chips span{border:1px solid var(--line);border-radius:999px;padding:6px 12px;white-space:nowrap;background:var(--card)}
+.chips .on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.dcard{display:flex;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px;margin-top:12px}
+.dcard .ph{width:64px;height:64px;flex:none}.dcard b{display:block}
+.list .li{display:flex;justify-content:space-between;padding:12px 0;border-top:1px solid var(--line)}
+.list .li:first-child{border-top:0}
+/* navbar flutuante iOS */
+.tabbar{position:absolute;left:24px;right:24px;bottom:20px;height:64px;border-radius:999px;display:flex;justify-content:space-around;align-items:center;padding:6px;
+  background:rgba(255,255,255,.72);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);
+  border:1px solid rgba(255,255,255,.6);box-shadow:0 8px 24px rgba(30,34,51,.16)}
+.tab{flex:1;height:52px;border-radius:999px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:11px;color:var(--mut);font-weight:600}
+.tab .ic{font-size:18px;line-height:1}
+.tab.on{background:var(--brand-bg);color:var(--brand)}
+.tab.focus{outline:3px solid var(--brand);outline-offset:2px}
+.badge{position:absolute;margin:-18px 0 0 22px;min-width:16px;height:16px;border-radius:8px;background:var(--brand);color:#fff;font-size:10px;display:grid;place-items:center;padding:0 4px}
+.cta{position:absolute;left:0;right:0;bottom:0;padding:16px;background:var(--card);border-top:1px solid var(--line)}
+.num{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--ink);color:#fff;font-size:11px;margin-right:4px}
+/* próximas aulas */
+.nxl{padding:4px 16px 8px}
+.nxl .day{margin:12px 0 4px;font-size:12px;font-weight:600;color:var(--mut);text-transform:uppercase;letter-spacing:.04em}
+.nx{display:flex;gap:12px;padding:8px 0}
+.nx+.day{border-top:1px solid var(--line);padding-top:12px}
+.nx .t{width:32px;flex:none;display:flex;flex-direction:column;font-size:12px;color:var(--mut)}
+.nx .t b{font-size:15px;color:var(--ink)}
+.nx .bar{width:4px;border-radius:2px;background:var(--brand);flex:none}
+.nx .c{display:flex;flex-direction:column;gap:2px}
+.nx .c b{font-size:15px}
+/* agenda */
+.seg{display:flex;background:var(--ph);border-radius:999px;padding:3px}.seg span{flex:1;text-align:center;padding:6px;border-radius:999px;font-weight:600;color:var(--mut)}.seg .on{background:var(--card);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.days{display:flex;justify-content:space-between;margin:16px 0 8px}
+.days span{width:44px;height:60px;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:11px;color:var(--mut)}
+.days b{font-size:17px;color:var(--ink)}
+.days .on{background:var(--brand);color:#fff}.days .on b{color:#fff}
+.days i{width:4px;height:4px;border-radius:50%;background:var(--brand);margin-top:2px}.days .on i{background:#fff}
+.slot{display:flex;gap:12px;margin-top:12px}
+.slot .h{width:44px;flex:none;color:var(--mut);font-size:12px;padding-top:12px}
+.slot .ev{flex:1;background:var(--brand-bg);border-left:4px solid var(--brand);border-radius:8px;padding:10px 12px}
+.slot .ev.gray{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--mut)}
+.slot .ev b{display:block}
+.empty{flex:1;border:1px dashed var(--line);border-radius:8px;padding:10px 12px;color:var(--mut);font-size:12px}
+/* mapa */
+.map{max-width:1100px;margin:0 auto 40px;background:var(--card);border-radius:16px;padding:24px}
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:12px}
+.flow span{border:1px solid var(--line);border-radius:8px;padding:6px 10px;background:var(--bg)}
+.flow .home{background:var(--brand-bg);border-color:var(--brand);font-weight:600}
+.flow .hide{border-style:dashed}
+.flow em{color:var(--mut);font-style:normal}
+.notes{max-width:1100px;margin:48px auto 0;background:var(--card);border-radius:16px;padding:24px}
+.notes table{border-collapse:collapse;width:100%}.notes th,.notes td{text-align:left;padding:8px;border-top:1px solid var(--line);vertical-align:top}
+/* anatomia */
+.anat{display:flex;gap:32px;flex-wrap:wrap;align-items:flex-start}
+.anat .demo{position:relative;width:340px;height:104px;background:linear-gradient(135deg,#c9d3e0,#efedfc);border-radius:16px}
+.anat .demo .tabbar{left:12px;right:12px;bottom:20px}
+.anat ol{margin:0;padding-left:20px;max-width:560px}
+</style>
+
+<h1>Início + navbar flutuante — wireframe</h1>
+<p class="lead">Problema: hoje o app <b>abre direto na T1</b> e <b>acaba numa lista crua (T5)</b>. A jornada não tem um lugar de partida nem de chegada. Proposta: uma tela <b>Início</b> que abre a jornada e a <b>recebe de volta, atualizada</b>, mais uma tab bar flutuante no estilo iOS com 3 abas (Início, Disciplinas, Agenda). Cinza = wireframe; roxo = ação; <span class="tag">âmbar</span> = dado que ainda não existe em <code>discipline-data.ts</code>.</p>
+
+<div class="map">
+  <b>Nova jornada</b>
+  <div class="flow">
+    <span class="home">Início</span><em>→ Escolher disciplinas →</em>
+    <span>T1 Disciplinas</span><em>→</em>
+    <span class="hide">T2 Detalhe</span><em>→</em>
+    <span class="hide">T3 Resumo</span><em>→</em>
+    <span class="hide">T4 Semana pronta</span><em>→ Voltar ao início →</em>
+    <span class="home">Início (atualizado)</span>
+  </div>
+  <p class="mut sm" style="margin:12px 0 0">Borda cheia = tab bar visível · borda tracejada = tab bar escondida (fluxo de tarefa, como no iOS). A Agenda vira aba fixa; T5 “Minhas matrículas” fica como sub-aba de Disciplinas.</p>
+</div>
+
+<div class="row">
+
+  <!-- A · Início antes -->
+  <div class="col">
+    <h2>A · Início, antes da matrícula</h2>
+    <p class="why">Uma ação primária só: “Escolher disciplinas”. O prazo aparece primeiro porque Marina já perdeu uma vaga por demorar. “Próximas aulas” mostra o dia a dia: hora, sala e o tópico da aula, para ela chegar sabendo o que vem. A grade da semana passou para a aba Agenda.</p>
+    <div class="phone">
+      <div class="scroll">
+        <div class="top">
+          <div><span class="mut">Boa tarde,</span><h3>Marina</h3></div>
+          <span class="avatar" aria-label="Perfil">MS</span>
+        </div>
+
+        <div class="card hero">
+          <span class="pill warn">⏱ Fecha em <span class="tag">3 dias</span></span>
+          <h4 style="margin:8px 0 4px">Matrícula 2026.1 aberta</h4>
+          <p class="mut" style="margin:0">Escolha suas disciplinas antes que as vagas acabem.</p>
+          <div class="progress" aria-hidden="true"><i style="width:0%"></i></div>
+          <p class="sm mut" style="margin:4px 0 0">0 de <span class="tag">até 5</span> disciplinas escolhidas</p>
+          <span class="btn">Escolher disciplinas</span>
+        </div>
+
+        <h4>Próximas aulas</h4>
+        <div class="card nxl" style="margin-top:0">
+          <p class="day">Hoje</p>
+          <div class="nx"><span class="t"><b>14h</b>16h</span><span class="bar"></span><span class="c"><b>Cálculo I</b><span>Aula 7 · Limites laterais</span><span class="mut sm">Sala B-204</span></span></div>
+          <p class="day">Terça, 29</p>
+          <div class="nx"><span class="t"><b>8h</b>10h</span><span class="bar"></span><span class="c"><b>Inglês Instrumental</b><span>Leitura de abstracts</span><span class="mut sm">Sala A-110</span></span></div>
+        </div>
+        <span class="link">Ver agenda completa</span>
+
+        <h4>Avisos</h4>
+        <div class="msg warn"><span aria-hidden="true">⚠</span><span><b>Rematrícula de Inglês pendente</b><span class="sm">Confirme até <span class="tag">30/09</span>.</span></span></div>
+        <div class="msg"><span aria-hidden="true">ℹ</span><span><b>Aulas começam em <span class="tag">03/02</span></b><span class="sm mut">Calendário 2026.1</span></span></div>
+      </div>
+      <nav class="tabbar" aria-label="Principal">
+        <span class="tab on" aria-current="page"><span class="ic">⌂</span>Início</span>
+        <span class="tab"><span class="ic">☰</span>Disciplinas</span>
+        <span class="tab"><span class="ic">▦</span>Agenda</span>
+      </nav>
+    </div>
+  </div>
+
+  <!-- B · Início depois -->
+  <div class="col">
+    <h2>B · Início, depois da T4 (fecha a jornada)</h2>
+    <p class="why">Marina volta ao mesmo lugar. Como a matrícula já foi feita, o cartão de prazo some e a home fica só com o dia a dia: próximas aulas e avisos.</p>
+    <div class="phone">
+      <div class="scroll">
+        <div class="top">
+          <div><span class="mut">Boa tarde,</span><h3>Marina</h3></div>
+          <span class="avatar" aria-label="Perfil">MS</span>
+        </div>
+
+        <h4>Próximas aulas</h4>
+        <div class="card nxl" style="margin-top:0">
+          <p class="day">Hoje</p>
+          <div class="nx"><span class="t"><b>14h</b>16h</span><span class="bar"></span><span class="c"><b>Cálculo I</b><span>Aula 7 · Limites laterais</span><span class="mut sm">Sala B-204</span></span></div>
+          <p class="day">Terça, 29</p>
+          <div class="nx"><span class="t"><b>8h</b>10h</span><span class="bar"></span><span class="c"><b>Inglês Instrumental</b><span>Leitura de abstracts</span><span class="mut sm">Sala A-110</span></span></div>
+        </div>
+        <span class="link">Ver agenda completa</span>
+
+        <h4>Avisos</h4>
+        <div class="msg warn"><span aria-hidden="true">⚠</span><span><b>Rematrícula de Inglês pendente</b><span class="sm">Confirme até <span class="tag">30/09</span>.</span></span></div>
+      </div>
+      <nav class="tabbar" aria-label="Principal">
+        <span class="tab on" aria-current="page"><span class="ic">⌂</span>Início</span>
+        <span class="tab"><span class="ic">☰</span>Disciplinas</span>
+        <span class="tab"><span class="ic">▦</span>Agenda</span>
+      </nav>
+    </div>
+  </div>
+
+  <!-- C · T1 -->
+  <div class="col">
+    <h2>C · T1 Disciplinas (aba)</h2>
+    <p class="why">A T1 atual fica como está; ganha a tab bar e, no topo, o seletor que leva à T5. O resumo fixo sobe para ficar acima da pílula quando há seleção. Não pode haver dois elementos flutuantes disputando o mesmo espaço.</p>
+    <div class="phone">
+      <div class="scroll">
+        <h3 style="margin-bottom:12px">Disciplinas</h3>
+        <div class="seg" style="margin-bottom:12px"><span class="on">Disponíveis</span><span>Minhas matrículas</span></div>
+        <div class="search">🔍 Buscar disciplina ou professor</div>
+        <div class="chips"><span class="on">Todos</span><span>Design</span><span>Programação</span><span>Negócios</span></div>
+        <div class="dcard"><span class="ph">img</span><span><b>User Centered Design</b><span class="mut sm">Cláudia Ribeiro · Seg/Qua 8h</span><br><span class="sm">6 vagas</span></span></div>
+        <div class="dcard"><span class="ph">img</span><span><b>Dataviz</b><span class="mut sm">Fábio Assis · Ter 18h</span><br><span class="sm">2 vagas</span></span></div>
+        <div class="dcard"><span class="ph">img</span><span><b>Desenvolvimento Web</b><span class="mut sm">Rafael Lima · Ter/Qui 18h</span><br><span class="sm">4 vagas</span></span></div>
+      </div>
+      <div style="position:absolute;left:16px;right:16px;bottom:96px;background:var(--ink);color:#fff;border-radius:16px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center">
+        <span>2 selecionadas</span><b>Revisar →</b>
+      </div>
+      <nav class="tabbar" aria-label="Principal">
+        <span class="tab"><span class="ic">⌂</span>Início</span>
+        <span class="tab on" aria-current="page"><span class="ic">☰</span>Disciplinas</span>
+        <span class="tab"><span class="ic">▦</span>Agenda</span>
+      </nav>
+    </div>
+  </div>
+
+  <!-- D · T5 -->
+  <div class="col">
+    <h2>D · T5 Minhas matrículas (sub-aba de Disciplinas)</h2>
+    <p class="why">Sem aba própria: vive dentro de Disciplinas, num seletor “Disponíveis | Minhas matrículas”. Continua alcançável a qualquer momento (F01) e a T4 abre direto nela. O “Buscar mais” sai porque “Disponíveis” está a um toque.</p>
+    <div class="phone">
+      <div class="scroll">
+        <h3 style="margin-bottom:12px">Disciplinas</h3>
+        <div class="seg" style="margin-bottom:16px"><span>Disponíveis</span><span class="on">Minhas matrículas</span></div>
+        <div class="card list" style="margin-top:0">
+          <p class="sm mut" style="margin:0 0 8px">2026.1 · novas</p>
+          <div class="li"><b>User Centered Design</b><span class="mut">Seg/Qua 8h</span></div>
+          <div class="li"><b>Desenvolvimento Web</b><span class="mut">Ter/Qui 18h</span></div>
+        </div>
+        <div class="card list">
+          <p class="sm mut" style="margin:0 0 8px">Já cursando</p>
+          <div class="li"><b>Cálculo I</b><span class="mut">Seg/Qua 14h</span></div>
+          <div class="li"><b>Inglês Instrumental</b><span class="mut">Ter 8h</span></div>
+        </div>
+      </div>
+      <nav class="tabbar" aria-label="Principal">
+        <span class="tab"><span class="ic">⌂</span>Início</span>
+        <span class="tab on" aria-current="page"><span class="ic">☰</span>Disciplinas</span>
+        <span class="tab"><span class="ic">▦</span>Agenda</span>
+      </nav>
+    </div>
+  </div>
+
+  <!-- F · Agenda dia -->
+  <div class="col">
+    <h2>F · Agenda, visão Dia (aba nova)</h2>
+    <p class="why">No estilo do Calendário do iOS: uma faixa com os dias da semana (o ponto marca dia com aula) e a lista do dia escolhido. Cada aula mostra sala e tópico. Horário livre aparece tracejado.</p>
+    <div class="phone">
+      <div class="scroll">
+        <div class="top"><h3>Agenda</h3><span class="sm mut">Set · Out</span></div>
+        <div class="seg"><span class="on">Dia</span><span>Semana</span></div>
+        <div class="days">
+          <span class="on">Seg<b>28</b><i></i></span><span>Ter<b>29</b><i></i></span><span>Qua<b>30</b><i></i></span><span>Qui<b>1</b></span><span>Sex<b>2</b></span>
+        </div>
+        <p class="sm mut" style="margin:0">Segunda, 28 de setembro · 1 aula</p>
+        <div class="slot"><span class="h">8h</span><span class="empty">Livre</span></div>
+        <div class="slot"><span class="h">14h</span><span class="ev"><b>Cálculo I</b><span class="sm">14h–16h · Sala <span class="tag">B-204</span></span><span class="topic sm" style="display:block;margin-top:4px"><span class="mut">Tópico · </span><span class="tag">Limites laterais (aula 7)</span></span></span></div>
+        <div class="slot"><span class="h">18h</span><span class="empty">Livre</span></div>
+        <div class="msg" style="margin-top:24px"><span aria-hidden="true">ℹ</span><span><b>A partir de 03/02</b><span class="sm mut">Semana 2026.1 com as disciplinas novas. Mude para a visão Semana.</span></span></div>
+      </div>
+      <nav class="tabbar" aria-label="Principal">
+        <span class="tab"><span class="ic">⌂</span>Início</span>
+        <span class="tab"><span class="ic">☰</span>Disciplinas</span>
+        <span class="tab on" aria-current="page"><span class="ic">▦</span>Agenda</span>
+      </nav>
+    </div>
+  </div>
+
+  <!-- G · Agenda semana -->
+  <div class="col">
+    <h2>G · Agenda, visão Semana</h2>
+    <p class="why">Reaproveita a <code>WeekSchedule</code> da T3/T4. Um seletor alterna entre o semestre atual e o 2026.1, e as disciplinas novas aparecem em destaque. É aqui que o “fim” da jornada continua vivo depois da T4.</p>
+    <div class="phone">
+      <div class="scroll">
+        <div class="top"><h3>Agenda</h3></div>
+        <div class="seg"><span>Dia</span><span class="on">Semana</span></div>
+        <div class="row2" style="margin-top:12px"><span class="mut">‹</span><b>2026.1 · a partir de 03/02</b><span class="mut">›</span></div>
+        <div class="card" style="margin-top:4px">
+          <div class="grid">
+            <span></span><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span>
+            <span class="mut">8h</span><span class="new">UCD</span><span class="old">Ing</span><span class="new">UCD</span><span></span><span></span>
+            <span class="mut">14h</span><span class="old">Cál</span><span></span><span class="old">Cál</span><span></span><span></span>
+            <span class="mut">18h</span><span></span><span class="new">Web</span><span></span><span class="new">Web</span><span></span>
+          </div>
+          <div class="legend"><span><i style="background:var(--brand)"></i>Nova</span><span><i style="background:var(--ph)"></i>Já cursa</span></div>
+        </div>
+        <p class="sm mut">Toque num bloco para abrir a disciplina (T2, só leitura).</p>
+      </div>
+      <nav class="tabbar" aria-label="Principal">
+        <span class="tab"><span class="ic">⌂</span>Início</span>
+        <span class="tab"><span class="ic">☰</span>Disciplinas</span>
+        <span class="tab on" aria-current="page"><span class="ic">▦</span>Agenda</span>
+      </nav>
+    </div>
+  </div>
+
+  <!-- E · T3 sem tab bar -->
+  <div class="col">
+    <h2>E · T3 Resumo (tab bar escondida)</h2>
+    <p class="why">Dentro do fluxo T2 → T4 a pílula some, como o iOS faz em telas empilhadas. As únicas saídas são voltar, cancelar e confirmar, o que protege o F02 e evita largar a matrícula pela metade.</p>
+    <div class="phone">
+      <div class="scroll" style="padding-bottom:160px">
+        <div class="top"><span class="x" aria-label="Voltar">←</span><b>Resumo</b><span style="width:40px"></span></div>
+        <div class="card" style="margin-top:0">
+          <div class="row2"><b>User Centered Design</b><span class="mut">Seg/Qua 8h</span></div>
+          <hr class="hr">
+          <div class="row2"><b>Desenvolvimento Web</b><span class="mut">Ter/Qui 18h</span></div>
+        </div>
+        <div class="ph" style="height:140px;margin-top:16px">agenda da semana (já existe)</div>
+      </div>
+      <div class="cta"><span class="btn" style="margin:0">Confirmar matrícula</span><span class="link">Cancelar</span></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="notes">
+  <h2 style="margin-top:0">Anatomia da navbar flutuante</h2>
+  <div class="anat">
+    <div class="demo">
+      <nav class="tabbar" aria-label="Exemplo">
+        <span class="tab on"><span class="ic">⌂</span>Início</span>
+        <span class="tab focus"><span class="ic">☰</span>Disciplinas</span>
+        <span class="tab"><span class="ic">▦</span>Agenda</span>
+      </nav>
+    </div>
+    <ol>
+      <li><b>Contêiner</b>: pílula com 3 abas, com 24px de margem lateral e 20px da base. Fundo branco translúcido + <code>backdrop-filter: blur</code>, borda clara e sombra suave. <span class="tag">raio pill, blur e sombra: conferir se já existem no Figma ou entram na tabela com razão</span></li>
+      <li><b>Aba</b>: ícone + rótulo sempre visível (não só ícone). Alvo de 52px de altura (≥ 24px do WCAG 2.5.8, ≥ 44px iOS).</li>
+      <li><b>Ativa</b>: fundo de marca claro + texto de marca + <code>aria-current="page"</code>. Não depende só de cor, porque também muda o fundo (1.4.1).</li>
+      <li><b>Foco</b>: contorno de 3px da cor de ação, com afastamento (2.4.7). Na demo, “Disciplinas” está em foco.</li>
+      <li><b>Transição</b>: some/aparece deslizando para baixo com a duração média; com <code>prefers-reduced-motion</code>, só troca.</li>
+    </ol>
+  </div>
+
+  <h2>Pendências e riscos</h2>
+  <table>
+    <tr><th>Tema</th><th>O que muda</th><th>Risco / decisão</th></tr>
+    <tr><td>Enunciado</td><td>Início é uma tela extra (T0?). T1–T5 e E1–E4 continuam iguais.</td><td>Registrar em <code>docs/decisoes.md</code> e acrescentar ao <code>flow-catalog-data.tsx</code>. Conferir o V02 (uma ação primária por tela): no Início, só “Escolher disciplinas”.</td></tr>
+    <tr><td>Dados</td><td>Prazo, limite de disciplinas, avisos e data de início das aulas <span class="tag">âmbar</span>.</td><td>São dados inventados, então precisam de uma decisão explícita, como a nº 6 (agenda da Marina). Alternativa: tirar os avisos e manter só o prazo.</td></tr>
+    <tr><td>Componentes</td><td>Reusa <code>WeekSchedule</code>, <code>SystemMessage</code> e <code>Button</code>. Novos: <b>TabBar</b>, o cartão de destaque do Início, o item “próxima aula” e a faixa de dias da Agenda.</td><td>A TabBar pede página em <code>docs/componentes/</code> + aba Docs no Storybook.</td></tr>
+    <tr><td>T1</td><td>O resumo fixo (<code>SelectionBar</code>) precisa ficar acima da pílula.</td><td>Conferir a sobreposição em 320px; talvez esconder a tab bar enquanto há seleção.</td></tr>
+    <tr><td>T4</td><td>A saída principal passa a ser “Voltar ao início”; “Ver minhas matrículas” fica como secundária ou sai.</td><td>Muda a tabela de transições dos critérios (T4 → T5 agora é Disciplinas › Minhas matrículas).</td></tr>
+    <tr><td>Agenda</td><td>Nova aba com visões Dia e Semana. A Semana reusa a <code>WeekSchedule</code>; a Dia é um componente novo (faixa de dias + lista).</td><td>Sala, tópico da aula e datas <span class="tag">âmbar</span> são dados inventados. Tópico exige um “plano de aula” por disciplina. Escopo: só as 2 disciplinas atuais têm tópicos; as novas começam em 03/02.</td></tr>
+    <tr><td>Home × Agenda</td><td>A home mostra só as próximas 2 aulas; a grade da semana saiu da home para não duplicar a Agenda.</td><td>Na home B não há cartão de conclusão: a T4 já comemora e mostra a grade; a home só perde o cartão de prazo.</td></tr>
+    <tr><td>Acessibilidade</td><td>Novo item no percurso de teclado: a tab bar vem depois do conteúdo na ordem de foco.</td><td>Refazer o print numerado da T1.</td></tr>
+  </table>
+</div>

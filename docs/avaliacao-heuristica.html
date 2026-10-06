@@ -1,0 +1,556 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Avaliação heurística — O caso Marina</title>
+<style>
+:root{--bg:#f6f7f8;--card:#fff;--ink:#1a1d29;--mut:#5b6075;--line:#cfd4e0;--brand:#4b36d6;--brand-bg:#eeebff;--ok:#15803d;--okbg:#eaf7ee;--warn:#9a4a07;--warnbg:#fff4e5;--err:#b91c1c;--errbg:#fdeded;--ia:#0f6b5c;--iabg:#e8f3f1;--me:#7a2dc4;--mebg:#f3ecfb;--grey:#6b7184}
+@media (prefers-color-scheme:dark){:root{--bg:#12141c;--card:#1b1e29;--ink:#eceef5;--mut:#a3a9be;--line:#3a4056;--brand:#9d8fff;--brand-bg:#2a2650;--ok:#4ade80;--okbg:#14301f;--warn:#fbbf6a;--warnbg:#3a2a12;--err:#ff8a8a;--errbg:#3a1616;--ia:#5fd1bd;--iabg:#10302b;--me:#c79bff;--mebg:#2b1d3d;--grey:#98a0b8}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.55 -apple-system,BlinkMacSystemFont,'SF Pro Text',Roboto,Arial,sans-serif}
+header.top{padding:24px 16px 8px;max-width:1120px;margin:0 auto}
+h1{font-size:24px;line-height:30px;margin:0 0 4px}
+h2{font-size:18px;line-height:24px;margin:24px 0 8px}
+h3{font-size:15px;margin:0 0 4px}
+p{margin:0 0 8px}
+.mut{color:var(--mut)}
+main{max-width:1120px;margin:0 auto;padding:0 16px 64px}
+button,select,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--brand);outline-offset:2px}
+.sticky{position:sticky;top:0;z-index:10;background:var(--bg);border-bottom:1px solid var(--line)}
+.bar{max-width:1120px;margin:0 auto;padding:8px 16px;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center}
+.bar .counts{display:flex;flex-wrap:wrap;gap:4px 16px;flex:1;min-width:260px}
+.bar .counts b{font-variant-numeric:tabular-nums}
+.btn{border:1px solid var(--line);background:var(--card);border-radius:8px;padding:8px 12px;min-height:36px}
+.btn.primary{background:var(--brand);border-color:var(--brand);color:#fff}
+@media (prefers-color-scheme:dark){.btn.primary{color:#12141c}}
+.tabs{display:flex;gap:4px;max-width:1120px;margin:0 auto;padding:0 16px;overflow-x:auto}
+.tab{border:0;border-bottom:3px solid transparent;background:none;padding:12px 16px;font-weight:600;color:var(--mut);white-space:nowrap}
+.tab[aria-selected=true]{color:var(--ink);border-bottom-color:var(--brand)}
+.tab.ia[aria-selected=true]{border-bottom-color:var(--ia)}
+.tab.me[aria-selected=true]{border-bottom-color:var(--me)}
+/* régua das 10 heurísticas */
+.heur{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 0}
+.chip{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:4px 12px;min-height:32px;display:inline-flex;gap:6px;align-items:center}
+.chip b{display:inline-grid;place-items:center;min-width:24px;height:24px;border-radius:12px;background:var(--brand);color:#fff;font-size:12px;padding:0 4px}
+@media (prefers-color-scheme:dark){.chip b{color:#12141c}}
+.chip.low{border-style:dashed;color:var(--mut)}
+.chip.low b{background:var(--grey)}
+.chip[aria-expanded=true]{border-color:var(--brand);background:var(--brand-bg)}
+.hinfo{border:1px solid var(--brand);background:var(--brand-bg);border-radius:12px;padding:12px 16px;margin-top:8px}
+.hinfo[hidden]{display:none}
+.hinfo .codes{font-family:ui-monospace,Menlo,monospace;font-size:12px}
+.hb{display:inline-flex;gap:4px;align-items:center;border-radius:6px;padding:0 8px;background:var(--brand-bg);border:1px solid var(--brand);font-size:12px;font-weight:600}
+.wb{display:inline-flex;border-radius:6px;padding:0 8px;background:var(--iabg);border:1px solid var(--ia);font-size:12px;font-weight:600;font-family:ui-monospace,Menlo,monospace}
+.sev{display:inline-grid;place-items:center;min-width:24px;height:24px;border-radius:6px;color:#fff;font-weight:700;font-size:13px}
+.sev0{background:#6b7184}.sev1{background:#6a6f87}.sev2{background:#b3470a}.sev3{background:#b3261e}.sev4{background:#7f1410}
+.tag{display:inline-block;border-radius:6px;padding:0 8px;font-size:12px;font-weight:600;border:1px solid var(--line)}
+.tag.ok{background:var(--okbg);color:var(--ok);border-color:var(--ok)}
+.tag.warn{background:var(--warnbg);color:var(--warn);border-color:var(--warn)}
+.tag.grey{color:var(--mut)}
+/* cartões */
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin:12px 0}
+.card.ia{border-left:6px solid var(--ia)}
+.card.me{border-left:6px solid var(--me)}
+.card.done{opacity:.92}
+.card header{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;margin-bottom:8px}
+.card .id{font-family:ui-monospace,Menlo,monospace;font-weight:700}
+dl.f{display:grid;grid-template-columns:140px 1fr;gap:4px 12px;margin:0 0 12px}
+dl.f dt{color:var(--mut);font-size:12px;text-transform:uppercase;letter-spacing:.04em;padding-top:2px}
+dl.f dd{margin:0}
+.zone-ia,.zone-me{border-radius:8px;padding:12px;margin-top:8px}
+.zone-ia{background:var(--iabg)}
+.zone-me{background:var(--mebg)}
+.zone-me>b.lbl,.zone-ia>b.lbl{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.zone-me>b.lbl{color:var(--me)}.zone-ia>b.lbl{color:var(--ia)}
+label.fl{display:block;margin:8px 0 2px;font-weight:600;font-size:13px}
+textarea,input[type=text],select{width:100%;border:1px solid var(--line);background:var(--card);border-radius:8px;padding:8px;min-height:36px}
+textarea{min-height:64px;resize:vertical}
+.radios{display:flex;flex-wrap:wrap;gap:8px}
+.radios label{display:inline-flex;gap:6px;align-items:center;border:1px solid var(--line);background:var(--card);border-radius:8px;padding:6px 12px;min-height:36px;cursor:pointer}
+.radios input{width:auto;min-height:0;margin:0}
+.radios label:has(input:checked){border-color:var(--brand);background:var(--brand-bg);font-weight:600}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+@media (max-width:720px){.grid3{grid-template-columns:1fr}dl.f{grid-template-columns:1fr}.split{grid-template-columns:1fr!important}}
+.missing{outline:2px dashed var(--warn);outline-offset:1px}
+.filters{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.filters button{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:4px 12px;min-height:32px}
+.filters button[aria-pressed=true]{background:var(--brand);border-color:var(--brand);color:#fff}
+@media (prefers-color-scheme:dark){.filters button[aria-pressed=true]{color:#12141c}}
+/* tela a tela */
+.split{display:grid;grid-template-columns:240px 1fr;gap:16px;align-items:start}
+.screens{position:sticky;top:112px;display:flex;flex-direction:column;gap:4px}
+.screens button{text-align:left;border:1px solid var(--line);background:var(--card);border-radius:8px;padding:8px 12px;display:flex;justify-content:space-between;gap:8px}
+.screens button[aria-current=true]{border-color:var(--me);background:var(--mebg);font-weight:600}
+.screens small{color:var(--mut);white-space:nowrap}
+.crit{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;margin:8px 0}
+.crit.no{border-color:var(--err);background:var(--errbg)}
+.crit.ok{border-color:var(--ok)}
+.crit .row{display:flex;flex-wrap:wrap;gap:8px 16px;justify-content:space-between;align-items:center}
+.crit .q{flex:1;min-width:240px}
+table{border-collapse:collapse;width:100%;background:var(--card)}
+th,td{border:1px solid var(--line);padding:8px;text-align:left;vertical-align:top}
+th{background:var(--bg);font-size:12px;text-transform:uppercase;letter-spacing:.04em}
+pre{white-space:pre-wrap;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px;margin:0 0 8px}
+.callout{border-left:4px solid var(--warn);background:var(--warnbg);padding:8px 12px;border-radius:0 8px 8px 0;margin:8px 0}
+.steps{counter-reset:s;margin:0;padding:0;list-style:none}
+.steps li{counter-increment:s;margin:8px 0}
+.steps li::before{content:counter(s);display:inline-grid;place-items:center;width:22px;height:22px;border-radius:11px;background:var(--err);color:#fff;font-size:12px;font-weight:700;margin-right:8px}
+/* telas com marcações */
+.cardgrid{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:16px;align-items:start}
+@media (max-width:900px){.cardgrid{grid-template-columns:1fr}}
+.figs{display:flex;flex-direction:column;gap:12px}
+figure.shot{margin:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--card)}
+figure.shot .stage{position:relative;line-height:0}
+figure.shot img{width:100%;height:auto;display:block}
+figure.shot figcaption{padding:8px 12px;font-size:12px;line-height:1.4;color:var(--mut);border-top:1px solid var(--line)}
+figure.shot figcaption b{color:var(--ink)}
+.pin{position:absolute;border:3px solid var(--pc,#0f6b5c);border-radius:6px;box-shadow:0 0 0 2px #fff;pointer-events:none}
+.pin i{position:absolute;top:-14px;left:-14px;min-width:24px;height:24px;border-radius:12px;background:var(--pc,#0f6b5c);color:#fff;font:700 12px/24px ui-monospace,Menlo,monospace;text-align:center;font-style:normal;box-shadow:0 0 0 2px #fff;padding:0 4px}
+.pin.me{--pc:#7a2dc4}
+.pin.ia{--pc:#0f6b5c}
+.pin.warn{--pc:#b3261e}
+.mefig{position:sticky;top:130px}
+.melay{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:16px;align-items:start}
+.melay .figs{position:sticky;top:130px}
+@media (max-width:900px){.melay{grid-template-columns:1fr}.melay .figs{position:static;order:-1}}
+.pinlist{margin:0 0 8px;padding:0;list-style:none;font-size:13px}
+.pinlist li{display:flex;gap:8px;margin:2px 0}
+.pinlist b{display:inline-grid;place-items:center;min-width:20px;height:20px;border-radius:10px;background:#7a2dc4;color:#fff;font-size:11px;flex:none}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<header class="top">
+  <h1>Avaliação heurística · O caso Marina</h1>
+  <p class="mut">Duas análises lado a lado. Na aba <b>Análise da IA</b> estão os achados que a IA fez: você confere cada um na tela, classifica e decide. Na aba <b>Minha análise</b> você percorre as telas com as 10 heurísticas e a WCAG, marca o que atende e justifica o que não atende. Tudo que você escreve fica salvo neste navegador; use <b>Exportar</b> para levar ao ZIP. Base: Aula 05 (Prof. Ana Carolina Medrado), Nielsen (1994) e WCAG 2.2.</p>
+  <div class="heur" id="heurStrip" role="group" aria-label="As dez heurísticas de Nielsen"></div>
+  <div class="hinfo" id="hinfo" hidden aria-live="polite"></div>
+</header>
+
+<div class="sticky" id="stickyBar">
+  <div class="bar">
+    <div class="counts" id="counts" aria-live="polite"></div>
+    <button class="btn" id="exMd">Exportar .md</button>
+    <button class="btn" id="exJson">Exportar .json</button>
+    <button class="btn" id="reset">Limpar tudo</button>
+  </div>
+  <div class="tabs" role="tablist" aria-label="Seções">
+    <button class="tab ia" role="tab" id="t-ia" aria-controls="p-ia" aria-selected="true">Análise da IA</button>
+    <button class="tab me" role="tab" id="t-me" aria-controls="p-me" aria-selected="false">Minha análise (tela a tela)</button>
+    <button class="tab" role="tab" id="t-res" aria-controls="p-res" aria-selected="false">Resumo e verificador</button>
+  </div>
+</div>
+
+<main>
+  <section id="p-ia" role="tabpanel" aria-labelledby="t-ia"></section>
+  <section id="p-me" role="tabpanel" aria-labelledby="t-me" hidden></section>
+  <section id="p-res" role="tabpanel" aria-labelledby="t-res" hidden></section>
+</main>
+
+<script>
+/* ============ DADOS ============ */
+const HEUR=[
+ {n:1,c:'Estado do sistema',nome:'Visibilidade do estado do sistema',q:'A tela diz onde estou, o que está acontecendo e o que acabou de mudar?',p:'C3 G1 G2 D3 H5',ex:'Ex.: o cartão não mostra qual disciplina está selecionada; busca vazia sem explicar por quê.'},
+ {n:2,c:'Mundo real',nome:'Correspondência com o mundo real',q:'As palavras são as da Marina? O rótulo do botão diz verbo + objeto e o resultado?',p:'D2 J1 G3 J3',ex:'Ex.: "OK" e "Confirmar" não dizem o que vai acontecer; "período noturno" quando ela diz "o de noite".'},
+ {n:3,c:'Controle',nome:'Controle e liberdade do usuário',q:'Dá para sair, cancelar e desfazer sem perder o que já fez? Esc, × e desfazer existem?',p:'B4 I1 I2',ex:'Ex.: diálogo sem Esc nem ×; ação sem desfazer.'},
+ {n:4,c:'Consistência',nome:'Consistência e padrões',q:'A mesma ação tem o mesmo nome, forma e lugar em todas as telas?',p:'K2 L1 E3 C2',ex:'Ex.: "Confirmar", "CONFIRMAR" e "confirmar" com três estilos para a mesma ação.'},
+ {n:5,c:'Prevenção de erro',nome:'Prevenção de erro',q:'A tela evita o erro antes que aconteça (bloqueio, restrição, ação destrutiva afastada)?',p:'A6 H4 H1 B3',ex:'Ex.: pedir o CEP e depois rua e bairro que o CEP já traz.'},
+ {n:6,c:'Reconhecer',nome:'Reconhecer em vez de lembrar',q:'Rótulos e opções ficam visíveis quando precisam? A Marina não precisa decorar nada?',p:'A3 H5 I3 D1',ex:'Ex.: rótulo que some quando a pessoa digita; filtro aplicado escondido.'},
+ {n:7,c:'Eficiência',nome:'Flexibilidade e eficiência de uso',q:'Há atalhos para quem repete a tarefa? (baixa prioridade neste projeto)',p:'H3 H4 C1',low:true,ex:'Ex.: teclado de letras num campo que só aceita número.'},
+ {n:8,c:'Minimalismo',nome:'Estética e design minimalista',q:'Há uma ação principal clara? Sobra ruído competindo com ela?',p:'E2 E1 K1 K3',ex:'Ex.: quatro botões do mesmo peso, a tela não recomenda nada.'},
+ {n:9,c:'Recuperar erro',nome:'Ajudar a reconhecer, diagnosticar e recuperar de erros',q:'A mensagem diz o que houve, por quê e o que fazer, em palavras simples?',p:'J1 A5 J5',ex:'Ex.: "Erro 422: entidade não processável".'},
+ {n:10,c:'Ajuda',nome:'Ajuda e documentação',q:'A ajuda está no lugar certo e não depende de mouse? (baixa prioridade neste projeto)',p:'G1 I3 J4',low:true,ex:'Ex.: dica que só aparece com mouse.'}
+];
+const WC=[
+ {id:'w143',w:'1.4.3',nome:'Contraste de texto',q:'Texto normal ≥ 4,5:1; texto grande ≥ 3:1. Meça, não confie no olho.'},
+ {id:'w1411',w:'1.4.11',nome:'Contraste de componentes',q:'Borda, ícone e estado dos controles ≥ 3:1 contra o fundo.'},
+ {id:'w258',w:'2.5.8',nome:'Tamanho do alvo',q:'Alvo ≥ 24×24px (o projeto usa 48px) e sem alvos colados a ações destrutivas.'},
+ {id:'w247',w:'2.4.7',nome:'Foco visível',q:'Dá para ver onde o foco está ao teclar Tab em cada controle?'},
+ {id:'w243',w:'2.4.3',nome:'Ordem de foco',q:'A ordem do Tab segue a ordem visual e a lógica da tarefa?'},
+ {id:'w412',w:'4.1.2',nome:'Nome, papel e valor',q:'Todo controle tem nome acessível, papel certo (botão é botão) e estado (pressionado, desabilitado).'},
+ {id:'w131',w:'1.3.1',nome:'Estrutura e regiões',q:'Há cabeçalho h1, regiões (main, nav) e listas marcadas como listas?'}
+];
+const SCREENS=[
+ {id:'home',n:'Início',d:'Saudação, contagem regressiva e próximas aulas.',el:['Saudação e título "Marina"','Cartão "3 dias para escolher"','Botão Escolher disciplinas','Próximas aulas','Ver agenda completa','Avisos','Barra de abas'],pistas:['A Marina sabe qual é a ação principal?','O título da tela diz onde ela está?']},
+ {id:'t1',n:'T1 · Lista de disciplinas',d:'Escolher disciplinas: busca, filtros e cartões.',el:['Campo de busca','Seletor Disponíveis / Minhas matrículas','Chips de área','Cartão da disciplina (arte, selo de vagas, professor, horário, créditos)','Botão + / ✓ do cartão','Acessório de seleção (contagem, estado, Revisar seleção)','Barra de abas'],pistas:['Dá para saber quais disciplinas já estão selecionadas só olhando a lista?','A lista diz quantos resultados aparecem?','O + é entendido sem rótulo?']},
+ {id:'t2',n:'T2 · Detalhe da disciplina',d:'Ver detalhes e adicionar à matrícula.',el:['Voltar (círculo flutuante)','Arte e título','Kicker (área · período · créditos)','Quatro fatos','Professora','Aviso de limite de créditos','Outras da área','Adicionar à matrícula / Remover disciplina / Revisar seleção'],pistas:['Qual é a ação principal e ela se destaca?','O que acontece depois de adicionar?']},
+ {id:'t3',n:'T3 · Revise e confirme',d:'Resumo antes de confirmar: totais, agenda e conflitos.',el:['Voltar','Avisos (choque, vaga esgotada, limite)','Totais (disciplinas, horas, créditos)','Cartões com remover','Sua semana (agenda)','Barra: Confirmar matrícula e Cancelar seleção','Folhas de confirmação'],pistas:['O Confirmar bloqueado diz por quê, e como resolver?','Dá para desistir e voltar atrás? (Cancelar e Desfazer)','Remover uma disciplina é difícil de fazer sem querer?']},
+ {id:'fol',n:'Folhas (bottom sheets)',d:'Remover, descartar e aviso de vaga esgotada.',el:['Título da pergunta','Texto explicativo','Ação principal (perigo) acima','Manter / Fechar abaixo','Fundo escurecido'],pistas:['Esc e toque fora fecham?','O foco vai para a ação segura?','Os rótulos dizem o que vai acontecer?']},
+ {id:'t4',n:'T4 · Confirmação',d:'Matrícula confirmada.',el:['Faixa de sucesso','Mensagem de confirmação','Resumo das disciplinas','Botões de saída'],pistas:['A Marina entende que a matrícula foi feita (e não só "salva")?','Para onde ela pode ir em seguida?']},
+ {id:'t5',n:'T5 · Minhas matrículas',d:'Ver o que já está matriculado.',el:['Seletor Minhas matrículas','Lista de disciplinas matriculadas','Estado vazio','Barra de abas'],pistas:['Ela percebe sozinha que a disciplina aparece aqui?']},
+ {id:'agenda',n:'Agenda',d:'Semana com os horários.',el:['Título','Grade semanal','Blocos de aula','Legenda (matriculada, candidata, conflito)'],pistas:['Dá para ler o nome inteiro de cada bloco?','Conflito é percebido sem depender só da cor?']},
+ {id:'est',n:'Estados (E1–E4 e limite)',d:'Busca vazia, carregando, vaga esgotada, busca longa e limite de créditos.',el:['E1 busca sem resultado','E2 esqueleto de carregamento','E3 vaga esgotada durante a decisão','E4 busca longa','Limite de créditos excedido'],pistas:['Cada estado diz o que houve e o que fazer?','Falta o estado "não consegui carregar"?']}
+];
+/* regua: indices 0..2 → frequência (raro, às vezes, toda vez), impacto (contorna, custa caro, não sai), persistência (aprende, às vezes lembra, tropeça sempre) */
+const FREQ=['raro','às vezes','toda vez'],IMP=['contorna','custa caro','não sai'],PER=['aprende','às vezes lembra','tropeça sempre'];
+const IA=[
+ {id:'IA-01',tela:'fol',onde:'Botão de perigo ("Descartar seleção", "Remover disciplina")',viu:'Texto branco sobre #e5484d mede 3,91:1; o mínimo para texto de 14px é 4,5:1.',conf:'Abra a folha e rode o axe, ou meça o par #ffffff / #e5484d num medidor de contraste.',h:null,w:'1.4.3',pad:'F2',quem:'Verificador (axe) + medição da IA',sev:2,r:[1,1,2],why:'Quem tem baixa visão pode ler mal o rótulo da ação destrutiva, justamente a que mais exige atenção. O contraste não muda: tropeça sempre.',cor:'Escurecer o fundo do botão de perigo (token de erro mais escuro) até ≥ 4,5:1 com texto branco.',est:'aberto'},
+ {id:'IA-02',tela:'t2',tela2:'T2, T3 e T4',onde:'Estrutura da página (sem região principal)',viu:'O axe aponta "landmark-one-main" e "region" (11, 13 e 14 elementos fora de região) em T2, T3 e T4. Início, T1, T5 e Agenda passam.',conf:'Rode o axe nessas três telas, ou abra a árvore de acessibilidade do navegador: não há região "main".',h:null,w:'1.3.1',pad:'',quem:'Verificador (axe). É "boa prática" do axe, ligada a 1.3.1 e 2.4.1.',sev:2,r:[2,0,1],why:'Quem navega por leitor de tela não consegue pular direto para o conteúdo principal nessas três telas, e elas são o caminho da matrícula.',cor:'Envolver o conteúdo de T2, T3 e T4 em um <main>, como nas outras telas, e deixar a barra fixa em região própria.',est:'aberto'},
+ {id:'IA-03',tela:'home',tela2:'Todas',onde:'Título do documento, título da NavBar e h1 do Início',viu:'O <title> é sempre "O caso Marina — Matrícula"; o título da NavBar tem aria-hidden; o h1 do Início é "Marina".',conf:'Troque de tela e olhe a aba do navegador, ou use um leitor de tela: o título nunca muda.',h:1,w:'2.4.2',pad:'D3',quem:'IA (auditoria contra a apostila)',sev:2,r:[2,0,0],why:'Ao trocar de tela, quem usa leitor de tela não ouve em que tela está; a aba do navegador e o histórico também não ajudam.',cor:'Atualizar document.title a cada tela ("Disciplinas — O caso Marina") e dar ao h1 do Início um texto que diga onde a pessoa está.',est:'aberto'},
+ {id:'IA-04',tela:'t3',tela2:'T3 e Folhas',onde:'Cancelar seleção → folha de confirmação → Desfazer',viu:'Descartar a seleção pede confirmação numa folha e, depois, ainda mostra o Desfazer. São duas redes de segurança para a mesma ação.',conf:'Na T3 toque Cancelar seleção, confirme e veja o aviso com Desfazer.',h:5,w:'',pad:'B4',quem:'IA (auditoria contra a apostila)',sev:1,r:[1,0,0],why:'Um toque a mais para quem está com pressa. Mas as duas proteções foram decididas de propósito (decisões #19 e #25): decidir qual manter é seu.',cor:'Manter só uma das duas (folha antes OU Desfazer depois), e registrar o motivo da outra no campo "Descarte" da decisão.',est:'aberto'},
+ {id:'IA-05',tela:'t3',tela2:'T1, T2, T3',onde:'Rótulos de botão: "Confirmar", "Revisar", "Manter"',viu:'Não diziam o objeto nem o resultado da ação.',conf:'Leia só o botão, sem a tela em volta: dá para saber o que ele faz?',h:2,w:'',pad:'B2',quem:'IA (auditoria contra a apostila)',sev:2,r:[2,0,0],why:'Na pressa, "Confirmar" sozinho não diz se confirma a matrícula, a seleção ou outra coisa.',cor:'Verbo + objeto: Confirmar matrícula, Revisar seleção, Remover disciplina, Manter disciplina, Descartar seleção.',est:'corrigido',nota:'Corrigido em 03/10/2026 (decisão #27). Conferido no navegador na lista; resumo e folhas só por leitura do código.'},
+ {id:'IA-06',tela:'t1',tela2:'T1 e T3',onde:'Campo de busca, chips de área, trilha do seletor, card de totais',viu:'O contorno media 1,14:1 contra o fundo; o mínimo para componentes é 3:1.',conf:'Meça a cor do contorno contra o fundo (antes #e6e8eb; agora #70839e).',h:null,w:'1.4.11',pad:'F2',quem:'IA com medição no navegador',sev:2,r:[2,0,1],why:'Quem tem baixa visão não percebe onde o campo e os filtros começam e terminam.',cor:'Novo token --color-border-control (gray-500) nos controles: 3,61:1.',est:'corrigido',nota:'Corrigido em 03/10/2026 (decisão #27); medido depois: 3,61:1.'},
+ {id:'IA-07',tela:'t3',tela2:'T2 e T3',onde:'Blocos da semana no resumo ("Fundamentos de Programação", "Inglês Instrumental")',viu:'O nome era cortado no meio, sem reticências.',conf:'Abra a T3 com Fundamentos de Programação e olhe a agenda "Sua semana".',h:6,w:'',pad:'J4',quem:'IA com medição no navegador',sev:1,r:[1,0,0],why:'A Marina precisa reconhecer a disciplina pelo nome; cortado sem aviso parece outro nome.',cor:'Reticências no bloco e nome completo no aria-label da agenda.',est:'corrigido',nota:'Corrigido em parte: o nome completo ainda não aparece na tela, só para o leitor de tela. Não conferi visualmente depois da mudança.'},
+ {id:'IA-22',tela:'agenda',tela2:'Agenda (Semana)',onde:'Blocos da visão Semana: "Inglês Instrumental", "Cálculo I"',viu:'O texto quebra no meio da palavra: "Cálcul / o I", "Instrumenta / l".',conf:'Abra Agenda, toque em Semana e leia os blocos.',h:6,w:'',pad:'J4',quem:'IA com captura de tela no navegador',sev:2,r:[2,0,0],why:'A Marina precisa reconhecer a disciplina de relance; palavra partida atrasa a leitura e pode parecer outro nome.',cor:'Em coluna estreita não partir palavra: abreviar com reticências ou mostrar só a sigla, e abrir o nome inteiro ao tocar.',est:'aberto'},
+ {id:'IA-08',tela:'est',tela2:'Todas',onde:'Regra de movimento reduzido (CSS global)',viu:'A regra zera as durações mas não limita a repetição: spinner e esqueleto, que repetem sem parar, passariam a piscar.',conf:'Ative "reduzir movimento" no sistema e abra a lista (esqueleto).',h:null,w:'2.3.3',pad:'M3',quem:'IA (leitura do CSS)',sev:1,r:[0,0,0],why:'Quem ativa essa preferência o faz para evitar movimento; piscar seria pior que animar.',cor:'Adicionar animation-iteration-count: 1 à regra.',est:'corrigido',nota:'Corrigido em 03/10/2026, só por leitura de CSS. Não testei com a preferência ativa.'},
+ {id:'IA-09',tela:'t2',tela2:'T2 e T3',onde:'Botão Voltar (círculo flutuante)',viu:'O fundo do círculo mede 1,06:1 contra o fundo, abaixo dos 3:1 de 1.4.11.',conf:'Meça o círculo. Depois meça o ícone da seta e o tamanho do alvo.',h:null,w:'1.4.11',pad:'',quem:'IA com medição no navegador',sev:0,r:[0,0,0],why:'Concluí que não é defeito: o círculo é só decoração; a informação é o ícone (15:1) e o alvo tem 48px.',cor:'Nenhuma. Registrado como nível 0: defeito listado e depois descartado.',est:'nivel0',nota:'Nível 0 (slide 11 da aula): a IA listou, mediu e concluiu que não era defeito. Você confirma ou discorda.'},
+ {id:'IA-10',tela:'t3',onde:'Aviso de vaga só ao confirmar (E3)',viu:'Hoje a vaga só falha ao tocar Confirmar matrícula.',conf:'Adicione Dataviz e outra disciplina, revise e confirme.',h:1,w:'',pad:'',quem:'IA, revisão de 03/10 (antes da apostila)',sev:1,r:[0,1,0],why:'Resolve melhor o medo da Marina ("a vaga ainda vai estar lá?"); mas o aviso já cobre o erro sem falsa confirmação.',cor:'Sugestão original da IA: revalidar as vagas ao abrir a T3 e avisar antes. A própria IA sugeria adaptar: só para a disciplina com 1 vaga.',est:'rascunho'},
+ {id:'IA-11',tela:'t1',onde:'Filtro por período na lista',viu:'O enunciado (p. 1) lista filtro por período; só existem chips de área (decisão 15).',conf:'Compare o enunciado com a T1.',h:4,w:'',pad:'',quem:'IA, revisão de 03/10 (antes da apostila)',sev:1,r:[1,0,0],why:'Fecha a lacuna com o enunciado. Mas você removeu o filtro de propósito.',cor:'Sugestão original: recolocar o filtro por período. A IA deixou "decidir": só vale se o professor cobrar.',est:'rascunho'},
+ {id:'IA-12',tela:'t3',onde:'Aviso com Desfazer fica até fechar',viu:'A IA sugeriu fazer o aviso de Desfazer sumir sozinho em 5 segundos.',conf:'Remova uma disciplina na T3 e veja quanto tempo o aviso fica.',h:3,w:'2.2.1',pad:'',quem:'IA, revisão de 03/10 (antes da apostila)',sev:1,r:[1,0,0],why:'Tempo limite quebra o 2.2.1; a Marina, no celular e com pressa, pode não ver o aviso a tempo.',cor:'Sugestão original: sumir em 5s. A IA recomendava recusar.',est:'rascunho',cand:true},
+ {id:'IA-13',tela:'t1',onde:'Botão + do cartão',viu:'A IA sugeriu trocar o + por uma caixa de seleção com o rótulo "Selecionar".',conf:'Veja o nome acessível do botão e o espaço que ele ocupa no cartão.',h:6,w:'',pad:'',quem:'IA, revisão de 03/10 (antes da apostila)',sev:1,r:[1,0,0],why:'O + tem 48px, nome acessível e aria-pressed. A caixa ocuparia espaço do cartão em 402px.',cor:'Sugestão original: caixa com rótulo. A IA recomendava recusar.',est:'rascunho'},
+ {id:'IA-14',tela:'t3',onde:'Confirmar matrícula sem "Tem certeza?"',viu:'A IA sugeriu pedir "Tem certeza?" antes de Confirmar na T3.',conf:'Na T3 veja se o Confirmar já está bloqueado quando há choque ou vaga esgotada.',h:5,w:'',pad:'B4',quem:'IA, revisão de 03/10 (antes da apostila)',sev:1,r:[0,0,0],why:'A T3 já é a tela de confirmação; a prevenção real vem do bloqueio. Uma confirmação a mais pesa para quem tem pressa.',cor:'Sugestão original: acrescentar a pergunta. A IA recomendava recusar.',est:'corrigido',nota:'Implementado em 03/10/2026 (decisão #29): folha "Confirmar matrícula?" antes de enviar. Conferido no navegador: Esc, toque fora e Voltar e revisar não confirmam.',cand:true},
+ {id:'IA-15',tela:'est',tela2:'Todas',onde:'Barra de abas e botão de ação encolhem ao rolar',viu:'Encolhem a 80%, chegando a 38px de altura.',conf:'Role a lista para baixo e meça o botão de ação.',h:null,w:'2.5.8',pad:'',quem:'IA, revisão de 03/10 (antes da apostila)',sev:1,r:[1,0,0],why:'Continua acima do mínimo de 24px do AA, mas o alvo da ação principal cai abaixo de 48px.',cor:'Sugestão original: parar de encolher. A IA sugeria adaptar: manter o encolhimento só na barra de abas.',est:'rascunho'},
+ {id:'IA-16',tela:'t1',onde:'Chips (36px) e seletor (40px)',viu:'Medidos no navegador abaixo dos 48px do restante dos controles.',conf:'Meça a altura dos chips e do seletor.',h:null,w:'2.5.8',pad:'',quem:'IA, revisão de 03/10 (antes da apostila)',sev:1,r:[1,0,0],why:'Passam o mínimo de 24px do AA; a escala do projeto pede 48px.',cor:'Sugestão original: subir para 48px.',est:'rascunho'},
+ {id:'IA-17',tela:'est',tela2:'E3 e T3',onde:'Aviso de vaga esgotada (E3)',viu:'Hoje diz "remova ou volte à lista"; não há atalho para outra disciplina.',conf:'Reproduza o E3 e leia o aviso.',h:9,w:'',pad:'',quem:'IA, revisão de 03/10 (antes da apostila)',sev:1,r:[0,1,0],why:'O caminho para uma alternativa fica por conta da Marina.',cor:'Sugestão original: ver disciplinas parecidas. A IA sugeria adaptar: um atalho "Escolher outra" que leva à T1 mantendo as demais selecionadas.',est:'rascunho'},
+ {id:'IA-18',tela:'t3',onde:'Confirmar matrícula desabilitado',viu:'O motivo aparece na barra ("Resolva o choque") e acima, mas o botão só fica apagado.',conf:'Gere um choque de horário na T3 e olhe o botão.',h:1,w:'',pad:'L2',quem:'IA (auditoria contra a apostila)',sev:1,r:[1,0,0],why:'Botão apagado não diz o que fazer; o texto de motivo está perto, mas separado.',cor:'Manter o texto de motivo junto do botão, ou deixar o botão ativo e explicar ao tocar.',est:'aberto'},
+ {id:'IA-19',tela:'est',onde:'Estados da tela: falta "não consegui carregar"',viu:'Existem E1 (busca vazia), E2 (carregando), E3 (vaga esgotada) e E4 (busca longa); não há tela de falha do sistema ou sem conexão.',conf:'Procure a falha de carregamento nos estados do Storybook.',h:9,w:'',pad:'C3',quem:'IA (auditoria contra a apostila)',sev:2,r:[1,2,0],why:'Se o carregamento falhar no meio da corrida por vagas, a Marina não saberia o que fazer.',cor:'Acrescentar um estado de falha com mensagem e botão "Tentar de novo".',est:'aberto',nota:'O enunciado não exige esse estado; vale como lacuna de handoff (pergunta 3 da especificação).'},
+ {id:'IA-20',tela:'t1',onde:'Lista sem contador de resultados',viu:'A busca e os chips mudam a lista sem dizer quantas disciplinas aparecem.',conf:'Digite na busca ou troque o chip e veja se algo informa o total.',h:1,w:'',pad:'H5',quem:'IA (auditoria contra a apostila)',sev:1,r:[1,0,0],why:'Sem o total, a Marina não sabe se viu tudo ou se faltou rolar.',cor:'Linha "n disciplinas" acima da lista, anunciada pelo leitor de tela.',est:'aberto'},
+ {id:'IA-21',tela:'t2',onde:'Kicker em caixa-alta com 7 palavras',viu:'"Programação · 1º período · 4 créditos" em caixa-alta, longo para uma linha em maiúsculas.',conf:'Abra um detalhe e leia a linha acima do título.',h:8,w:'',pad:'E3',quem:'IA (auditoria contra a apostila)',sev:1,r:[1,0,0],why:'Caixa-alta em frase longa é mais lenta de ler.',cor:'Manter caixa mista, ou abreviar o kicker.',est:'aberto'}
+];
+const SHOTS={
+ home:{src:'avaliacao-telas/home.png',w:402,h:874,n:'Início'},
+ t1:{src:'avaliacao-telas/t1.png',w:402,h:874,n:'T1 · Lista de disciplinas'},
+ t1sel:{src:'avaliacao-telas/t1sel.png',w:402,h:874,n:'T1 · Lista, com 2 disciplinas selecionadas'},
+ t2:{src:'avaliacao-telas/t2.png',w:402,h:874,n:'T2 · Detalhe da disciplina'},
+ t3:{src:'avaliacao-telas/t3.png',w:402,h:874,n:'T3 · Revise e confirme'},
+ t3agenda:{src:'avaliacao-telas/t3agenda.png',w:402,h:874,n:'T3 · Sua semana (agenda do resumo)'},
+ t3toast:{src:'avaliacao-telas/t3toast.png',w:402,h:874,n:'T3 · Depois de remover (aviso com Desfazer)'},
+ t3bloq:{src:'avaliacao-telas/t3bloq.png',w:402,h:874,n:'T3 · Confirmar bloqueado (choque e limite de créditos)'},
+ folha:{src:'avaliacao-telas/folha.png',w:402,h:874,n:'Folha de confirmação (Descartar seleção)'},
+ e3:{src:'avaliacao-telas/e3.png',w:402,h:874,n:'E3 · Vaga esgotada durante a decisão'},
+ t4:{src:'avaliacao-telas/t4.png',w:387,h:1016,n:'T4 · Confirmação (página inteira)'},
+ t5:{src:'avaliacao-telas/t5.png',w:402,h:874,n:'T5 · Minhas matrículas'},
+ agsem:{src:'avaliacao-telas/agenda-sem.png',w:402,h:874,n:'Agenda · visão Semana'},
+ e1:{src:'avaliacao-telas/e1.png',w:402,h:874,n:'E1 · Busca sem resultado'}
+};
+/* onde a IA olhou: [tela, [x,y,largura,altura] em px da imagem, rótulo] */
+const IAPINS={
+ 'IA-01':[['folha',[24,746,339,48],'Botão de perigo: branco sobre #e5484d = 3,91:1']],
+ 'IA-02':[['t2',[16,284,355,500],'Conteúdo fora de qualquer região (sem main)'],['t3',[16,112,355,500],'Idem na T3'],['t4',[16,304,355,536],'Idem na T4']],
+ 'IA-03':[['home',[16,72,355,52],'h1 "Marina": não diz a tela; o título do documento também não muda']],
+ 'IA-04':[['t3',[32,730,323,48],'Cancelar seleção abre a folha'],['folha',[24,746,339,48],'Folha pede confirmação'],['t3toast',[16,674,355,56],'E ainda há o Desfazer']],
+ 'IA-05':[['t1sel',[210,736,153,48],'Revisar seleção (antes: "Revisar")'],['t3',[32,674,323,48],'Confirmar matrícula (antes: "Confirmar")']],
+ 'IA-06':[['t1',[16,192,355,48],'Busca: contorno agora 3,61:1'],['t1',[16,256,355,40],'Chips'],['t1',[16,112,355,48],'Seletor']],
+ 'IA-07':[['t3agenda',[113,460,65,32],'"Inglês Instrumental" cortado'],['t3agenda',[67,556,45,64],'"Fundamentos de Programação"'],['t3agenda',[197,556,45,64],'Idem']],
+ 'IA-08':[['t1',[16,312,355,400],'Lista: o esqueleto de carregamento (E2) aparece aqui e repete sem parar']],
+ 'IA-09':[['t2',[16,12,48,48],'Círculo do Voltar: fundo 1,06:1; ícone 15:1'],['t3',[16,12,48,48],'Idem na T3']],
+ 'IA-10':[['t3',[32,674,323,48],'A vaga só falha aqui, ao confirmar'],['e3',[0,566,387,308],'E o aviso aparece depois']],
+ 'IA-11':[['t1',[16,256,355,40],'Só há chips de área; não há filtro por período']],
+ 'IA-12':[['t3toast',[16,674,355,56],'Aviso "removida" com Desfazer: fica até fechar']],
+ 'IA-13':[['t1',[319,316,48,48],'Botão + do cartão (48px, nome acessível)']],
+ 'IA-14':[['t3',[32,674,323,48],'Confirmar matrícula, sem "Tem certeza?"'],['t3bloq',[32,674,323,48],'Já fica bloqueado quando há choque ou limite']],
+ 'IA-15':[['t1sel',[16,802,355,56],'Barra de abas (encolhe ao rolar)'],['t1sel',[16,726,355,68],'Acessório de seleção (encolhe ao rolar)']],
+ 'IA-16':[['t1',[95,256,77,36],'Chip: 36px'],['t1',[16,112,355,48],'Seletor: 40px na trilha']],
+ 'IA-17':[['e3',[24,622,339,100],'Texto do aviso'],['e3',[24,746,339,104],'Só há "Remover" e "Fechar"']],
+ 'IA-18':[['t3bloq',[32,674,323,48],'Confirmar apagado, sem motivo no botão'],['t3bloq',[32,630,323,36],'O motivo está aqui ("Resolva o choque")'],['t3bloq',[16,124,355,48],'E aqui']],
+ 'IA-19':[['e1',[16,484,370,148],'Existe o estado "nenhum resultado" (E1); não há o de "não consegui carregar"']],
+ 'IA-20':[['t1',[16,296,355,16],'Aqui não há contagem de resultados']],
+ 'IA-21':[['t2',[16,292,355,16],'Kicker em caixa-alta, 7 palavras']],
+ 'IA-22':[['agsem',[129,289,51,94],'"Inglês Instrumental" partido ao meio'],['agsem',[69,577,51,94],'"Cálcul/o I"'],['agsem',[189,577,51,94],'Idem']]
+};
+/* tela a tela: para cada elemento da lista "el", [índice da imagem, caixa] (ou null se não aparece) */
+const MESHOTS={home:['home'],t1:['t1sel'],t2:['t2'],t3:['t3'],fol:['folha'],t4:['t4'],t5:['t5'],agenda:['agsem'],est:['e1','e3','t3bloq']};
+const MEBOX={
+ home:[[0,[16,72,355,52]],[0,[16,148,355,238]],[0,[40,314,307,48]],[0,[16,418,355,188]],[0,[115,614,158,48]],[0,[16,730,355,80]],[0,[16,802,355,56]]],
+ t1:[[0,[16,192,355,48]],[0,[16,112,355,48]],[0,[16,256,355,40]],[0,[16,312,355,168]],[0,[319,316,48,48]],[0,[16,726,355,68]],[0,[16,802,355,56]]],
+ t2:[[0,[16,12,48,48]],[0,[0,0,387,344]],[0,[16,292,355,16]],[0,[16,392,355,90]],[0,[16,550,355,80]],null,null,[0,[16,746,355,48]]],
+ t3:[[0,[16,12,48,48]],null,[0,[16,112,355,76]],[0,[16,200,355,204]],[0,[16,436,355,292]],[0,[16,614,355,180]],null],
+ fol:[[0,[24,650,339,24]],[0,[24,682,339,40]],[0,[24,746,339,48]],[0,[24,802,339,48]],[0,[0,0,387,626]]],
+ t4:[[0,[0,0,387,280]],[0,[16,144,355,88]],[0,[16,304,355,536]],[0,[16,864,355,128]]],
+ t5:[[0,[16,112,370,48]],[0,[16,184,370,260]],null,[0,[16,802,370,56]]],
+ agenda:[[0,[16,64,355,32]],[0,[16,204,355,772]],[0,[129,289,51,94]],null],
+ est:[[0,[16,484,370,148]],null,[1,[0,566,387,308]],null,[2,[16,184,355,32]]]
+};
+const VERIF=[
+ ['Início',0,0,35,''],
+ ['T1 · Lista',0,1,36,'contraste em 43 nós (o axe não conseguiu medir: sobre imagem/gradiente)'],
+ ['T1 · Lista com seleção',0,1,37,'contraste em 45 nós (idem)'],
+ ['T2 · Detalhe',2,1,34,'sem <main> e conteúdo fora de região (11 nós) · contraste em 1 nó'],
+ ['T3 · Resumo',2,1,33,'sem <main> e conteúdo fora de região (13 nós) · contraste em 1 nó'],
+ ['Folha de confirmação',1,1,18,'ERRO: botão de perigo 3,91:1 (1.4.3) · contraste em 1 nó'],
+ ['T4 · Confirmação',2,0,32,'sem <main> e conteúdo fora de região (14 nós)'],
+ ['T5 · Minhas matrículas',0,0,31,''],
+ ['Agenda',0,1,30,'contraste em 2 nós (blocos sobre cor)']
+];
+const NAO_AVALIOU=['Leitor de tela de verdade (VoiceOver): nomes e papéis foram conferidos pela árvore de acessibilidade e pelo axe, não ouvidos.','Ordem real do Tab fora da T1.','Toque em celular real: o protótipo foi aberto numa janela de 402px com mouse.','Escala de cinza (padrão F1): não conferi.','Movimento com "reduzir movimento" ativado: só li o CSS.','Se a Marina entende as palavras da tela: isso só o teste com pessoas mostra.','Rede lenta, falha de carregamento e desempenho.'];
+const PROMPT=`1 · Papel e régua
+Você é avaliador de usabilidade. Use as dez heurísticas de Nielsen. Cite norma só pelo número do critério da WCAG 2.2.
+
+2 · Contexto que a imagem não tem
+Marina, 19 anos, caloura de Engenharia, faz tudo pelo celular (402px), no ônibus, à noite. Tarefa: escolher duas disciplinas e confirmar a matrícula do semestre antes que as vagas acabem.
+
+3 · O que anexar
+As telas em imagem, na ordem do fluxo, numeradas: Início, T1, T2, T3, T4, T5. Se o texto for pequeno, mande o texto junto.
+
+4 · Formato da resposta
+Uma linha por achado: elemento, heurística, evidência visível na imagem, severidade de 0 a 4, correção.
+
+5 · A cláusula que quase ninguém escreve
+Liste separadamente o que você NÃO conseguiu avaliar por não estar visível na imagem.`;
+
+/* ============ FIGURAS ============ */
+function pinBox(shot,box,n,cls){const S0=SHOTS[shot];return `<span class="pin ${cls}" style="left:${box[0]/S0.w*100}%;top:${box[1]/S0.h*100}%;width:${box[2]/S0.w*100}%;height:${box[3]/S0.h*100}%"><i>${n}</i></span>`}
+/* pins: [[tela,[x,y,w,h],rótulo],...] -> uma figura por tela, numeração contínua */
+function figures(pins,cls){
+  const order=[...new Set(pins.map(p=>p[0]))];let n=0;
+  return order.map(sh=>{const S0=SHOTS[sh];const mine=pins.filter(p=>p[0]===sh);
+    const marks=mine.map(p=>pinBox(sh,p[1],++n,cls)).join('');
+    const first=n-mine.length+1;
+    return `<figure class="shot"><div class="stage"><img src="${S0.src}" alt="Captura da tela: ${esc(S0.n)}" loading="lazy">${marks}</div><figcaption><b>${esc(S0.n)}</b><br>${mine.map((p,i)=>`<b>${first+i}</b> ${esc(p[2])}`).join('<br>')}</figcaption></figure>`}).join('');
+}
+/* ============ ESTADO ============ */
+const LS='marina-avaliacao-v1';
+let S={};try{S=JSON.parse(localStorage.getItem(LS))||{}}catch(e){}
+['ia','chk','fd','ex','txt'].forEach(k=>S[k]=S[k]||{});
+let curScreen='home',curFilter='todas';
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function save(){try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}bar()}
+const suggest=(f,i,p)=>{if([f,i,p].some(v=>v===''||v==null))return null;const hi=[f,i,p].filter(v=>+v===2).length;return hi===3?4:hi===2?3:hi===1?2:([f,i,p].some(v=>+v===1)?1:0)};
+const hLabel=n=>{const h=HEUR.find(x=>x.n===n);return h?`<span class="hb">H${h.n} · ${esc(h.c)}</span>`:''};
+const sevB=n=>`<span class="sev sev${n}" title="Severidade ${n}">${n}</span>`;
+const screenName=id=>SCREENS.find(s=>s.id===id)?.n||id;
+
+/* ============ RÉGUA DE HEURÍSTICAS ============ */
+$('#heurStrip').innerHTML=HEUR.map(h=>`<button class="chip${h.low?' low':''}" data-h="${h.n}" aria-expanded="false" aria-controls="hinfo"><b>${h.n}</b>${esc(h.c)}</button>`).join('');
+$('#heurStrip').addEventListener('click',e=>{
+  const b=e.target.closest('.chip');if(!b)return;
+  const open=b.getAttribute('aria-expanded')==='true';
+  document.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-expanded','false'));
+  const box=$('#hinfo');
+  if(open){box.hidden=true;return}
+  b.setAttribute('aria-expanded','true');
+  const h=HEUR[+b.dataset.h-1];
+  box.hidden=false;
+  box.innerHTML=`<h3>Heurística ${h.n} · ${esc(h.nome)}${h.low?' <span class="tag grey">baixa prioridade neste projeto</span>':''}</h3><p>${esc(h.q)}</p><p class="mut">${esc(h.ex)}</p><p class="codes">Padrões da apostila que consertam: ${esc(h.p)}</p>`;
+});
+
+/* ============ ABAS ============ */
+const TABS=['ia','me','res'];
+function showTab(id){
+  TABS.forEach(t=>{const sel=t===id;$('#t-'+t).setAttribute('aria-selected',sel);$('#p-'+t).hidden=!sel});
+  if(id==='res')renderRes();
+}
+TABS.forEach(t=>$('#t-'+t).addEventListener('click',()=>showTab(t)));
+
+/* ============ ABA IA ============ */
+const CAIXAS={ver:['Verificável','a tela confirma o que a IA escreveu'],fal:['Plausível e falso','o elemento ou o fato citado não existe'],op:['Opinião vestida de norma','cita norma que não é essa, ou sem número']};
+function iaMissing(f){
+  const a=S.ia[f.id]||{},m=[];
+  if(!a.caixa)m.push('caixa');
+  if(!a.conf)m.push('conf');
+  if(!a.dec)m.push('dec');
+  if(a.sev===undefined||a.sev==='')m.push('sev');
+  if(a.dec&&a.dec!=='ace'&&!a.mot)m.push('mot');
+  if(a.dec==='rec'&&!a.fiz)m.push('fiz');
+  return m;
+}
+function iaCard(f){
+  const a=S.ia[f.id]||{},miss=iaMissing(f),mm=k=>miss.includes(k)?' missing':'';
+  const est={aberto:['warn','Aberto'],corrigido:['ok','Corrigido'],rascunho:['grey','Rascunho antigo, sem decisão'],nivel0:['grey','Nível 0 (não é defeito)']}[f.est];
+  const tela=f.tela2||screenName(f.tela);
+  const rad=(name,val,txt,sub)=>`<label><input type="radio" name="${f.id}-${name}" data-k="${name}" data-id="${f.id}" value="${val}"${a[name]===val?' checked':''}>${txt}</label>`;
+  const rec=a.dec==='rec';
+  return `<article class="card ia${f.est==='corrigido'?' done':''}" id="${f.id}" data-tela="${f.tela}">
+  <div class="cardgrid"><div class="cardmain">
+  <header><span class="id">${f.id}</span>${sevB(f.sev)}<span class="tag ${est[0]}">${est[1]}</span>${f.cand?'<span class="tag warn">candidata a recusa</span>':''}${f.h?hLabel(f.h):''}${f.w?`<span class="wb">WCAG ${f.w}</span>`:''}${f.pad?`<span class="tag grey">padrão ${f.pad}</span>`:''}</header>
+  <dl class="f">
+   <dt>Onde</dt><dd><b>${esc(tela)}</b> · ${esc(f.onde)}</dd>
+   <dt>O que a IA viu</dt><dd>${esc(f.viu)}</dd>
+   <dt>Origem</dt><dd>${f.h?`Heurística ${f.h}, ${esc(HEUR[f.h-1].nome)}`:'Norma'}${f.w?` · WCAG ${f.w}`:''}${f.h&&f.w?'':''}</dd>
+   <dt>Por que é problema</dt><dd>${esc(f.why)}</dd>
+   <dt>Severidade da IA</dt><dd>${sevB(f.sev)} frequência <b>${FREQ[f.r[0]]}</b> · impacto <b>${IMP[f.r[1]]}</b> · persistência <b>${PER[f.r[2]]}</b></dd>
+   <dt>Correção</dt><dd>${esc(f.cor)}</dd>
+   <dt>Quem achou</dt><dd>${esc(f.quem)}</dd>
+   ${f.nota?`<dt>Nota</dt><dd>${esc(f.nota)}</dd>`:''}
+  </dl>
+  <div class="zone-me"><b class="lbl">Sua conferência (só você preenche)</b>
+   <p class="mut"><b>Como conferir:</b> ${esc(f.conf)}</p>
+   <label class="fl">1 · Em qual caixa a sugestão caiu?</label>
+   <div class="radios${mm('caixa')}">${Object.entries(CAIXAS).map(([k,v])=>rad('caixa',k,`<span><b>${v[0]}</b> <small class="mut">${v[1]}</small></span>`)).join('')}</div>
+   <label class="fl" for="${f.id}-conf">2 · O que você viu ao conferir na tela</label>
+   <textarea id="${f.id}-conf" class="${mm('conf').trim()}" data-k="conf" data-id="${f.id}" placeholder="Escreva o fato, como você viu na tela.">${esc(a.conf)}</textarea>
+   <label class="fl">3 · Sua decisão</label>
+   <div class="radios${mm('dec')}">${rad('dec','ace','Aceitar')}${rad('dec','ada','Adaptar')}${rad('dec','rec','Recusar')}</div>
+   <label class="fl" for="${f.id}-sev">4 · Sua severidade (0 a 4)</label>
+   <select id="${f.id}-sev" class="${mm('sev').trim()}" data-k="sev" data-id="${f.id}"><option value="">Escolha…</option>${[0,1,2,3,4].map(n=>`<option value="${n}"${String(a.sev)===String(n)?' selected':''}>${n}${n===f.sev?' (a mesma da IA)':''}</option>`).join('')}</select>
+   ${a.dec&&a.dec!=='ace'?`<label class="fl" for="${f.id}-mot">${rec?'Passo 3 · A razão. Não pode ser "não gostei": use persona, decisão já registrada, problema pior em outro lugar ou custo alto.':'O que você adaptou e por quê'}</label>
+   <textarea id="${f.id}-mot" class="${mm('mot').trim()}" data-k="mot" data-id="${f.id}">${esc(a.mot)}</textarea>`:''}
+   ${rec?`<div class="callout"><b>Protocolo da recusa (4 passos)</b>
+     <ol class="steps"><li><b>Copie a sugestão inteira</b>, nas palavras da IA: <em>"${esc(f.viu)} ${esc(f.cor)}"</em></li>
+     <li><b>Diga em qual caixa ela caiu:</b> ${a.caixa?esc(CAIXAS[a.caixa][0]):'<em>(marque a caixa no passo 1 acima)</em>'}</li>
+     <li><b>Dê a razão</b> (campo acima).</li>
+     <li><b>Mostre o que você fez em vez disso</b> (ou diga que não fez nada e por que é a decisão certa):</li></ol>
+     <textarea id="${f.id}-fiz" class="${mm('fiz').trim()}" data-k="fiz" data-id="${f.id}">${esc(a.fiz)}</textarea></div>`:''}
+  </div></div><div class="figs">${figures(IAPINS[f.id]||[],'ia')}</div></div></article>`;
+}
+function renderIA(){
+  const tel=[['todas','Todas'],...SCREENS.map(s=>[s.id,s.n])];
+  const abertos=IA.filter(f=>f.est==='aberto').length;
+  $('#p-ia').innerHTML=`
+   <h2>Análise da IA <span class="tag grey">${IA.length} achados</span></h2>
+   <p class="mut">Estes achados foram escritos pela IA (Claude Code) ao auditar o protótipo rodando, em 03/10/2026, e pelo verificador automático axe. Os 8 achados <b>IA-10 a IA-17</b> vêm do rascunho anterior à apostila e não têm severidade conferida por você. Para cada achado: <b>(1)</b> confira na tela, <b>(2)</b> classifique nas três caixas, <b>(3)</b> decida aceitar, adaptar ou recusar, <b>(4)</b> dê a sua severidade. A decisão final é sua; a sugestão da IA é só ponto de partida.</p>
+   <div class="callout">Pelo menos <b>uma recusa</b> com os 4 passos completos é o item que mais conta na rubrica. As duas candidatas mais fortes (marcadas) são <b>IA-12</b> e <b>IA-14</b>. ${abertos} achados abertos ainda esperam sua decisão sobre corrigir.</div>
+   <div class="filters" role="group" aria-label="Filtrar por tela">${tel.map(([id,n])=>`<button data-f="${id}" aria-pressed="${curFilter===id}">${esc(n)}</button>`).join('')}</div>
+   <div id="iaList">${IA.filter(f=>curFilter==='todas'||f.tela===curFilter).sort((a,b)=>b.sev-a.sev||a.id.localeCompare(b.id)).map(iaCard).join('')||'<p class="mut">Nenhum achado da IA nesta tela.</p>'}</div>`;
+}
+$('#p-ia').addEventListener('click',e=>{const b=e.target.closest('.filters button');if(b){curFilter=b.dataset.f;renderIA()}});
+$('#p-ia').addEventListener('input',e=>{const t=e.target,id=t.dataset.id;if(!id)return;(S.ia[id]=S.ia[id]||{})[t.dataset.k]=t.value;
+  if(t.type==='radio'){save();renderIAKeep(id)}else{save()}});
+function renderIAKeep(id){const y=window.scrollY;renderIA();window.scrollTo(0,y);const el=document.querySelector('#'+id+' input:checked');if(el)el.focus({preventScroll:true})}
+
+/* ============ ABA MINHA ANÁLISE ============ */
+const CRITS=[...HEUR.map(h=>({id:'h'+h.n,tipo:'h',h:h.n,nome:`H${h.n} · ${h.nome}`,q:h.q,low:h.low})),...WC.map(w=>({id:w.id,tipo:'w',w:w.w,nome:`WCAG ${w.w} · ${w.nome}`,q:w.q}))];
+const key=(sc,c)=>sc+'|'+c;
+function fdMissing(k){const d=S.fd[k]||{},m=[];['el','viu','why','f','i','p','sev','cor'].forEach(x=>{if(d[x]===undefined||d[x]==='')m.push(x)});return m}
+function formHtml(k,crit){
+  const d=S.fd[k]||{},miss=fdMissing(k),mm=x=>miss.includes(x)?' missing':'';
+  const sc=SCREENS.find(s=>s.id===k.split('|')[0]);
+  const sg=suggest(d.f,d.i,d.p);
+  const opt=(arr,v)=>`<option value="">Escolha…</option>${arr.map((t,i)=>`<option value="${i}"${String(v)===String(i)?' selected':''}>${t}</option>`).join('')}`;
+  const ek='d-'+k.replace(/\W/g,'_');
+  return `<div class="zone-me"><b class="lbl">Ficha do achado (7 campos)</b>
+   <label class="fl" for="${ek}-el">1 · Onde (elemento da tela)</label>
+   <input type="text" id="${ek}-el" class="${mm('el').trim()}" list="${ek}-dl" data-k2="${esc(k)}" data-f="el" value="${esc(d.el)}" placeholder="Escolha da lista ou escreva"><datalist id="${ek}-dl">${sc.el.map(e=>`<option value="${esc(e)}">`).join('')}</datalist>
+   <label class="fl" for="${ek}-viu">2 · O que você viu (o fato, sem adjetivo)</label>
+   <textarea id="${ek}-viu" class="${mm('viu').trim()}" data-k2="${esc(k)}" data-f="viu">${esc(d.viu)}</textarea>
+   <label class="fl">3 · Origem</label><p>${crit.tipo==='h'?hLabel(crit.h):`<span class="wb">WCAG ${crit.w}</span>`} <span class="mut">(já definida pelo critério em que você marcou "não atende")</span></p>
+   <label class="fl" for="${ek}-why">4 · Por que é problema para a Marina (celular, ônibus, pressa)</label>
+   <textarea id="${ek}-why" class="${mm('why').trim()}" data-k2="${esc(k)}" data-f="why"></textarea>
+   <label class="fl">5 · Severidade: as três réguas</label>
+   <div class="grid3">
+    <div><small class="mut">Frequência</small><select class="${mm('f').trim()}" data-k2="${esc(k)}" data-f="f" aria-label="Frequência">${opt(FREQ,d.f)}</select></div>
+    <div><small class="mut">Impacto</small><select class="${mm('i').trim()}" data-k2="${esc(k)}" data-f="i" aria-label="Impacto">${opt(IMP,d.i)}</select></div>
+    <div><small class="mut">Persistência</small><select class="${mm('p').trim()}" data-k2="${esc(k)}" data-f="p" aria-label="Persistência">${opt(PER,d.p)}</select></div>
+   </div>
+   <p class="mut" style="margin-top:8px">${sg===null?'Escolha as três réguas para ver a sugestão.':`Pela regra prática (duas altas ≈ 3, três altas = 4, uma alta e duas baixas = 2): <b>${sg}</b>.`}</p>
+   <label class="fl" for="${ek}-sev">Severidade final (0 a 4)</label>
+   <select id="${ek}-sev" class="${mm('sev').trim()}" data-k2="${esc(k)}" data-f="sev"><option value="">Escolha…</option>${[0,1,2,3,4].map(n=>`<option value="${n}"${String(d.sev)===String(n)?' selected':''}>${n}</option>`).join('')}</select>
+   <label class="fl" for="${ek}-cor">6 · Correção (com o padrão da apostila, ex.: B2)</label>
+   <textarea id="${ek}-cor" class="${mm('cor').trim()}" data-k2="${esc(k)}" data-f="cor"></textarea>
+   <p class="mut"><b>7 · Quem achou:</b> você (avaliação manual).</p></div>`.replace(/(<textarea[^>]*data-f="(viu|why|cor)"[^>]*>)<\/textarea>/g,(m,open,f)=>open+esc(d[f])+'</textarea>');
+}
+function critCard(sc,c){
+  const k=key(sc.id,c.id),st=S.chk[k]||'';
+  return `<div class="crit ${st==='no'?'no':st==='ok'?'ok':''}" id="c-${k.replace(/\W/g,'_')}">
+   <div class="row"><div class="q"><b>${esc(c.nome)}</b>${c.low?' <span class="tag grey">baixa prioridade</span>':''}<br><span class="mut">${esc(c.q)}</span></div>
+   <div class="radios" role="radiogroup" aria-label="${esc(c.nome)}">
+    ${[['ok','✓ Atende'],['no','✗ Não atende'],['na','– Não se aplica']].map(([v,t])=>`<label><input type="radio" name="r-${k}" data-chk="${esc(k)}" value="${v}"${st===v?' checked':''}>${t}</label>`).join('')}
+   </div></div>
+   ${st==='no'?formHtml(k,c):''}</div>`;
+}
+function extraCard(sc,id){
+  const k=key(sc.id,id);
+  const hsel=`<label class="fl" for="x-${id}">Critério em que o achado se enquadra</label><select id="x-${id}" data-xk="${esc(k)}"><option value="">Escolha…</option>${CRITS.map(c=>`<option value="${c.id}"${(S.fd[k]||{}).crit===c.id?' selected':''}>${esc(c.nome)}</option>`).join('')}</select>`;
+  const cid=(S.fd[k]||{}).crit,c=CRITS.find(x=>x.id===cid);
+  return `<div class="crit no"><b>Achado extra</b> <button class="btn" data-rmx="${esc(k)}" data-sc="${sc.id}" style="float:right">Remover</button>${hsel}${c?formHtml(k,c):''}</div>`;
+}
+function progress(sc){let done=0,no=0;CRITS.forEach(c=>{const s=S.chk[key(sc.id,c.id)];if(s)done++;if(s==='no')no++});return{done,no,total:CRITS.length}}
+function meFigs(sc){
+  const shots=MESHOTS[sc.id]||[],boxes=MEBOX[sc.id]||[];
+  return shots.map((sh,si)=>{const S0=SHOTS[sh];
+    const marks=boxes.map((b,i)=>b&&b[0]===si?pinBox(sh,b[1],i+1,'me'):'').join('');
+    return `<figure class="shot"><div class="stage"><img src="${S0.src}" alt="Captura da tela: ${esc(S0.n)}" loading="lazy">${marks}</div><figcaption><b>${esc(S0.n)}</b>. Os números são os dos elementos ao lado.</figcaption></figure>`}).join('');
+}
+function renderMe(){
+  const sc=SCREENS.find(s=>s.id===curScreen),pg=progress(sc);
+  $('#p-me').innerHTML=`
+   <h2>Minha análise, tela a tela</h2>
+   <p class="mut">Como fazer (Aula 05): <b>passagem 1</b>, 2 minutos, percorra a tarefa como a Marina <i>sem anotar nada</i>; <b>passagem 2</b>, 6 minutos, elemento a elemento, com as dez heurísticas ao lado. Marque cada critério; se não atende, preencha a ficha. <i>Um achado, uma heurística</i>: se o problema fere três, escolha a que melhor explica. Aponte a evidência (nome exato do elemento). A origem tem que ser <b>heurística com nome</b> ou <b>norma com número</b>; "feio" e "estranho" não entram.</p>
+   <div class="split"><nav class="screens" aria-label="Telas">${SCREENS.map(s=>{const p=progress(s);return `<button data-sc="${s.id}"${s.id===curScreen?' aria-current="true"':''}><span>${esc(s.n)}</span><small>${p.done}/${p.total}${p.no?` · ✗${p.no}`:''}</small></button>`}).join('')}</nav>
+   <div class="melay"><div><h3>${esc(sc.n)}</h3><p>${esc(sc.d)}</p>
+    <p><b>Elementos desta tela (passagem 2, um pino por elemento):</b></p>
+    <ul class="pinlist">${sc.el.map((e,i)=>`<li><b>${i+1}</b><span>${esc(e)}${MEBOX[sc.id]&&MEBOX[sc.id][i]?'':' <span class="mut">(não aparece nas imagens)</span>'}</span></li>`).join('')}</ul>
+    <p class="mut"><b>Para olhar aqui:</b> ${sc.pistas.map(esc).join(' · ')}</p>
+    <p class="mut">${pg.done} de ${pg.total} critérios marcados · ${pg.no} não atendem.</p>
+    <h3 style="margin-top:16px">Heurísticas de Nielsen</h3>${CRITS.filter(c=>c.tipo==='h').map(c=>critCard(sc,c)).join('')}
+    <h3 style="margin-top:16px">WCAG 2.2</h3>${CRITS.filter(c=>c.tipo==='w').map(c=>critCard(sc,c)).join('')}
+    <h3 style="margin-top:16px">Achados extras nesta tela</h3>${(S.ex[sc.id]||[]).map(id=>extraCard(sc,id)).join('')}
+    <button class="btn" data-addx="${sc.id}">+ Achado extra nesta tela</button>
+   </div><div class="figs">${meFigs(sc)}</div></div></div>`;
+}
+const keep=fn=>{const y=window.scrollY;fn();window.scrollTo(0,y)};
+$('#p-me').addEventListener('click',e=>{
+  const s=e.target.closest('[data-sc]');
+  if(s&&s.closest('.screens')){curScreen=s.dataset.sc;renderMe();window.scrollTo(0,0);return}
+  const a=e.target.closest('[data-addx]');
+  if(a){const id='x'+Date.now();(S.ex[a.dataset.addx]=S.ex[a.dataset.addx]||[]).push(id);save();keep(renderMe);return}
+  const r=e.target.closest('[data-rmx]');
+  if(r){const sc=r.dataset.sc,id=r.dataset.rmx.split('|')[1];if(confirm('Remover este achado extra?')){S.ex[sc]=(S.ex[sc]||[]).filter(x=>x!==id);delete S.fd[r.dataset.rmx];save();keep(renderMe)}}
+});
+$('#p-me').addEventListener('input',e=>{
+  const t=e.target;
+  if(t.dataset.chk){S.chk[t.dataset.chk]=t.value;save();keep(renderMe);const el=document.querySelector(`[data-chk="${CSS.escape(t.dataset.chk)}"]:checked`);el&&el.focus({preventScroll:true});return}
+  if(t.dataset.xk){(S.fd[t.dataset.xk]=S.fd[t.dataset.xk]||{}).crit=t.value;save();keep(renderMe);return}
+  if(t.dataset.k2){const d=S.fd[t.dataset.k2]=S.fd[t.dataset.k2]||{};d[t.dataset.f]=t.value;
+    if(['f','i','p'].includes(t.dataset.f)){const g=suggest(d.f,d.i,d.p);if(g!==null&&(d.sev===undefined||d.sev===''||d.autoSev)){d.sev=String(g);d.autoSev=true}save();keep(renderMe)}
+    else{if(t.dataset.f==='sev')d.autoSev=false;save()}}
+});
+
+/* ============ RESUMO ============ */
+function allFindings(){
+  const out=[];
+  IA.forEach(f=>{const a=S.ia[f.id]||{};out.push({id:f.id,quem:'IA',tela:f.tela2||screenName(f.tela),onde:f.onde,orig:(f.h?'H'+f.h:'')+(f.h&&f.w?' + ':'')+(f.w?'WCAG '+f.w:'')||'—',sev:a.sev!==undefined&&a.sev!==''?+a.sev:null,sevIA:f.sev,dec:a.dec,cor:f.cor,est:f.est})});
+  SCREENS.forEach(sc=>{[...CRITS.map(c=>key(sc.id,c.id)),...(S.ex[sc.id]||[]).map(id=>key(sc.id,id))].forEach(k=>{
+    const isEx=!CRITS.some(c=>key(sc.id,c.id)===k);const d=S.fd[k]||{};
+    if(!isEx&&S.chk[k]!=='no')return;if(isEx&&!d.crit)return;
+    const c=CRITS.find(x=>x.id===(isEx?d.crit:k.split('|')[1]));
+    out.push({id:'M-'+sc.id+'-'+c.id,quem:'Eu',tela:sc.n,onde:d.el||'(sem elemento)',orig:c.tipo==='h'?'H'+c.h:'WCAG '+c.w,sev:d.sev!==undefined&&d.sev!==''?+d.sev:null,cor:d.cor,dec:'—'})})});
+  return out;
+}
+function pending(){
+  let n=0;IA.forEach(f=>n+=iaMissing(f).length);
+  SCREENS.forEach(sc=>{CRITS.forEach(c=>{const k=key(sc.id,c.id);if(S.chk[k]==='no')n+=fdMissing(k).length});(S.ex[sc.id]||[]).forEach(id=>{const k=key(sc.id,id);n+=(S.fd[k]||{}).crit?fdMissing(k).length:1})});
+  return n;
+}
+function recusaOk(){return IA.some(f=>{const a=S.ia[f.id]||{};return a.dec==='rec'&&a.caixa&&a.mot&&a.fiz})}
+function bar(){
+  const cl=Object.values(S.ia).filter(a=>a.caixa).length;
+  const tot=SCREENS.length*CRITS.length,done=Object.keys(S.chk).filter(k=>S.chk[k]).length;
+  $('#counts').innerHTML=`<span>IA: <b>${cl}/${IA.length}</b> classificados</span><span>Manual: <b>${done}/${tot}</b> critérios</span><span>Campos seus pendentes: <b>${pending()}</b></span><span>Recusa completa: <b>${recusaOk()?'sim':'ainda não'}</b></span>`;
+}
+function renderRes(){
+  const c={ver:0,fal:0,op:0,sem:0};IA.forEach(f=>{const a=S.ia[f.id]||{};c[a.caixa||'sem']++});
+  const fs=allFindings().sort((a,b)=>((b.sev??b.sevIA??-1)-(a.sev??a.sevIA??-1)));
+  $('#p-res').innerHTML=`
+   <h2>A conta que vai no relatório</h2>
+   <div class="card"><p style="font-size:16px"><b>"De ${IA.length} achados da IA, ${c.ver} ${c.ver===1?'verificável':'verificáveis'}, ${c.fal} ${c.fal===1?'falso':'falsos'} e ${c.op} sem número de norma${c.sem?` (${c.sem} ainda por classificar)`:''}."</b></p>
+   <p class="mut">Uma linha, e mostra mais análise crítica que três parágrafos (Aula 05, slide 19).</p></div>
+   <h2>Todos os achados, por severidade</h2>
+   <p class="mut">A sua severidade vale; onde você ainda não preencheu, aparece a da IA em cinza. Conserte de cima: 4 agora, 3 esta semana, 2 se for barato, 1 provavelmente não.</p>
+   <table><thead><tr><th>Sev.</th><th>ID</th><th>Quem</th><th>Tela</th><th>Onde</th><th>Origem</th><th>Decisão</th></tr></thead><tbody>${fs.map(f=>`<tr><td>${f.sev!==null?sevB(f.sev):`<span class="tag grey" title="Severidade da IA">${f.sevIA??'?'}</span>`}</td><td>${f.id}</td><td>${f.quem}</td><td>${esc(f.tela)}</td><td>${esc(f.onde)}</td><td>${esc(f.orig)}</td><td>${{ace:'Aceitar',ada:'Adaptar',rec:'Recusar'}[f.dec]||(f.est==='corrigido'?'Corrigido (IA)':f.dec||'—')}</td></tr>`).join('')}</tbody></table>
+   <h2>Verificador automático (axe-core 4.10.2)</h2>
+   <p class="mut">Rodado em 03/10/2026, janela de 402×874, regras WCAG 2.0/2.1/2.2 A e AA mais boas práticas. "Incompletos" são pontos que o axe não conseguiu decidir sozinho e pedem conferência manual.</p>
+   <table><thead><tr><th>Tela</th><th>Erros</th><th>Incompletos</th><th>Aprovados</th><th>Detalhe</th></tr></thead><tbody>${VERIF.map(r=>`<tr><td>${esc(r[0])}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${esc(r[4])}</td></tr>`).join('')}</tbody></table>
+   <p class="mut">Protótipo de código (não é exportação de ferramenta de design): o resultado não traz o ruído de imagens sem semântica que a professora avisou.</p>
+   <h2>Prompt de avaliação (as 5 partes)</h2>
+   <pre id="promptTxt">${esc(PROMPT)}</pre><button class="btn" id="cpPrompt">Copiar prompt</button>
+   <p class="mut" style="margin-top:8px">Nesta rodada a IA não recebeu imagens: ela avaliou o protótipo <b>rodando no navegador</b>, com acesso ao DOM e a medições. Por isso a cláusula 5, "o que a IA não avaliou", vale como abaixo. Se quiser, rode também uma segunda rodada só com as imagens e compare.</p>
+   <h3>O que a IA NÃO avaliou (parte 5 do prompt)</h3>
+   <ul>${NAO_AVALIOU.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>
+   <p class="mut">Essa lista é exatamente o que precisa de teste com teclado, leitor de tela e gente.</p>`;
+  const b=$('#cpPrompt');if(b)b.onclick=()=>{try{navigator.clipboard.writeText(PROMPT);b.textContent='Copiado'}catch(e){b.textContent='Selecione e copie'}};
+}
+
+/* ============ EXPORTAR ============ */
+function dl(name,text,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+$('#exJson').onclick=()=>dl('avaliacao-heuristica.json',JSON.stringify(S,null,2),'application/json');
+$('#exMd').onclick=()=>{
+  const L=['# Avaliação heurística · O caso Marina','',`Gerado em ${new Date().toLocaleDateString('pt-BR')}. Análise da IA: Claude Code e axe-core 4.10.2. Análise manual: o estudante.`,'','## Análise da IA, com a decisão do estudante',''];
+  IA.forEach(f=>{const a=S.ia[f.id]||{};L.push(`### ${f.id} · ${screenName(f.tela)} · ${f.onde}`,'',`- **Onde:** ${f.tela2||screenName(f.tela)} · ${f.onde}`,`- **O que a IA viu:** ${f.viu}`,`- **Origem:** ${f.h?'Heurística '+f.h+' ('+HEUR[f.h-1].nome+')':'Norma'}${f.w?' · WCAG '+f.w:''}`,`- **Por que é problema:** ${f.why}`,`- **Severidade da IA:** ${f.sev} (frequência ${FREQ[f.r[0]]}, impacto ${IMP[f.r[1]]}, persistência ${PER[f.r[2]]})`,`- **Correção:** ${f.cor}`,`- **Quem achou:** ${f.quem}`,`- **Estado:** ${f.est}${f.nota?' · '+f.nota:''}`,`- **Caixa (estudante):** ${a.caixa?CAIXAS[a.caixa][0]:'(a classificar)'}`,`- **O que o estudante conferiu:** ${a.conf||'(a registrar)'}`,`- **Decisão do estudante:** ${{ace:'Aceitar',ada:'Adaptar',rec:'Recusar'}[a.dec]||'(a registrar)'}`,`- **Severidade do estudante:** ${a.sev!==undefined&&a.sev!==''?a.sev:'(a registrar)'}`,`- **Motivo:** ${a.mot||'(a registrar)'}`);if(a.dec==='rec')L.push(`- **O que foi feito no lugar:** ${a.fiz||'(a registrar)'}`);L.push('')});
+  L.push('## Análise manual do estudante, tela a tela','');
+  SCREENS.forEach(sc=>{const nos=[...CRITS.map(c=>({k:key(sc.id,c.id),c})).filter(x=>S.chk[x.k]==='no'),...(S.ex[sc.id]||[]).map(id=>({k:key(sc.id,id),c:CRITS.find(c=>c.id===(S.fd[key(sc.id,id)]||{}).crit)})).filter(x=>x.c)];
+    const ok=CRITS.filter(c=>S.chk[key(sc.id,c.id)]==='ok').length,na=CRITS.filter(c=>S.chk[key(sc.id,c.id)]==='na').length;
+    L.push(`### ${sc.n}`,'',`${ok} atendem · ${nos.length} não atendem · ${na} não se aplicam · ${CRITS.length-ok-na-nos.filter(x=>CRITS.some(c=>key(sc.id,c.id)===x.k)).length} não marcados`,'');
+    nos.forEach(({k,c})=>{const d=S.fd[k]||{};L.push(`- **${c.nome}** · Onde: ${d.el||'?'}`,`  - O que vi: ${d.viu||'?'}`,`  - Por que é problema: ${d.why||'?'}`,`  - Severidade: ${d.sev??'?'} (frequência ${FREQ[d.f]||'?'}, impacto ${IMP[d.i]||'?'}, persistência ${PER[d.p]||'?'})`,`  - Correção: ${d.cor||'?'}`,`  - Quem achou: avaliação manual`)});L.push('')});
+  dl('avaliacao-heuristica.md',L.join('\n'),'text/markdown');
+};
+$('#reset').onclick=()=>{if(confirm('Apagar tudo que você escreveu e marcou? Isso não pode ser desfeito.')){S={ia:{},chk:{},fd:{},ex:{},txt:{}};try{localStorage.removeItem(LS)}catch(e){}renderIA();renderMe();renderRes();bar()}};
+
+renderIA();renderMe();bar();
+</script>
+</body>
+</html>

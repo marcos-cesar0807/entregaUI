@@ -1,0 +1,755 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>O caso Marina — Pitch</title>
+<style>
+/* Mesma linguagem do app: tokens de src/styles/figma-tokens.css + global.css (cópia local, sem dependência externa). */
+:root {
+  --gray-50: #f6f7f8; --gray-200: #ced5de; --gray-400: #8e9db3; --gray-600: #475569; --gray-900: #252c37;
+  --purple-500: #5b46e5; --purple-600: #331cc9; --purple-100: #ece9fd; --purple-50: #f4f2fe;
+  --red-50: #fdeded; --red-700: #b91c1c; --green-50: #eaf7ee; --green-700: #15803d;
+  --night: #17143d; --night-text: #cfcaf2; --lilac: #b3a8ff; --white: #ffffff;
+  --r-inner: 8px; --r-card: 24px; --r-pill: 9999px;
+  --dur-fast: 120ms; --dur-med: 240ms; --dur-slow: 400ms;
+  --ease: cubic-bezier(.2,.8,.2,1); --spring: cubic-bezier(.34,1.56,.64,1);
+  --font: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Segoe UI', Roboto, Arial, sans-serif;
+  --mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; background: #0d0b24; overflow: hidden; font-family: var(--font); color: var(--gray-900); -webkit-font-smoothing: antialiased; }
+#stage { position: absolute; left: 50%; top: 50%; width: 1920px; height: 1080px; transform-origin: 0 0; }
+.slide { position: absolute; inset: 0; padding: 112px 128px; background: var(--gray-50); overflow: hidden;
+  opacity: 0; visibility: hidden; transform: scale(1.02); transition: opacity var(--dur-slow) var(--ease), transform var(--dur-slow) var(--ease), visibility 0s var(--dur-slow); }
+.slide.on { opacity: 1; visibility: visible; transform: none; transition: opacity var(--dur-slow) var(--ease), transform var(--dur-slow) var(--ease); }
+.slide.dark { background: var(--night); color: var(--white); }
+.glow { background: radial-gradient(circle at 88% 12%, #d9d2ff 0, rgba(217,210,255,0) 45%), radial-gradient(circle at 10% 100%, #ece9fd 0, rgba(236,233,253,0) 40%), var(--gray-50); }
+.dark.glow { background: radial-gradient(circle at 85% 15%, #3b2fa8 0, rgba(59,47,168,0) 50%), radial-gradient(circle at 0% 100%, #2a2070 0, rgba(42,32,112,0) 45%), var(--night); }
+
+/* Entrada em cascata: cada [data-a] entra com --i × 120ms (duração rápida da escala) */
+[data-a] { opacity: 0; transform: translateY(32px); }
+[data-a="pop"] { transform: scale(.6); }
+[data-a="left"] { transform: translateX(-64px); }
+[data-a="right"] { transform: translateX(64px); }
+.on [data-a] { opacity: 1; transform: none; transition: opacity var(--dur-slow) var(--ease), transform calc(var(--dur-slow) * 1.5) var(--ease); transition-delay: calc(var(--i, 0) * var(--dur-fast) + 160ms); }
+.on [data-a="pop"] { transition-timing-function: var(--ease), var(--spring); }
+
+.kicker { font-size: 26px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--purple-500); }
+.dark .kicker { color: var(--lilac); }
+h1 { font-size: 128px; line-height: 1; font-weight: 800; letter-spacing: -.035em; }
+h2 { font-size: 80px; line-height: 1.05; font-weight: 800; letter-spacing: -.03em; }
+h3 { font-size: 36px; line-height: 1.2; font-weight: 700; letter-spacing: -.01em; }
+p, li { font-size: 30px; line-height: 1.4; color: var(--gray-600); }
+.dark p, .dark li { color: var(--night-text); }
+.accent { color: var(--purple-500); }
+.dark .accent { color: var(--lilac); }
+.small { font-size: 24px; }
+.mono { font-family: var(--mono); }
+.row { display: flex; gap: 48px; }
+.col { display: flex; flex-direction: column; gap: 24px; }
+.grow { flex: 1; }
+.card { background: var(--white); border-radius: var(--r-card); padding: 40px; box-shadow: 0 1px 0 rgba(37,44,55,.04); }
+.dark .card { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); }
+.pill { display: inline-flex; align-items: center; gap: 12px; padding: 12px 28px; border-radius: var(--r-pill); font-size: 26px; font-weight: 600; background: var(--purple-100); color: var(--purple-600); }
+.pill.red { background: var(--red-50); color: var(--red-700); }
+.pill.green { background: var(--green-50); color: var(--green-700); }
+.num { font-size: 120px; font-weight: 800; letter-spacing: -.04em; line-height: 1; }
+b { color: var(--gray-900); }
+.dark b { color: var(--white); }
+
+/* Critério de avaliação que o slide atende: sempre no mesmo canto */
+.crit { position: absolute; top: 100px; right: 128px; display: flex; align-items: center; gap: 12px; padding: 10px 24px 10px 12px; border-radius: var(--r-pill); background: var(--white); box-shadow: 0 4px 24px rgba(23,20,61,.08); font-size: 22px; font-weight: 600; color: var(--gray-600); }
+.crit span { background: var(--purple-500); color: var(--white); border-radius: var(--r-pill); padding: 4px 14px; font-size: 20px; }
+.dark .crit { background: rgba(255,255,255,.08); color: var(--night-text); box-shadow: none; }
+
+/* Divisor de ato */
+.act-n { position: absolute; right: 96px; bottom: -120px; font-size: 760px; font-weight: 800; line-height: 1; letter-spacing: -.06em; color: transparent; -webkit-text-stroke: 3px rgba(179,168,255,.28); }
+
+/* Celular e capturas */
+.phone { width: 402px; height: 874px; border-radius: 56px; padding: 10px; background: #0f0d2a; box-shadow: 0 40px 96px rgba(23,20,61,.35), 0 0 0 2px rgba(255,255,255,.08) inset; flex: none; }
+.phone img { display: block; width: 382px; height: 854px; object-fit: cover; object-position: top; border-radius: 46px; }
+.shot { border-radius: var(--r-card); overflow: hidden; background: var(--white); box-shadow: 0 24px 64px rgba(23,20,61,.16); flex: none; }
+.shot img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top left; }
+.ill { background: url('../src/assets/discipline-illustrations.png') no-repeat; background-size: 500% 200%; aspect-ratio: 355 / 443; }
+.float { position: absolute; filter: drop-shadow(0 32px 40px rgba(23,20,61,.28)); animation: bob 6s var(--ease) infinite alternate; }
+@keyframes bob { to { translate: 0 -24px; } }
+
+.callout { display: flex; gap: 24px; align-items: flex-start; }
+.dot { flex: none; width: 52px; height: 52px; border-radius: 50%; background: var(--purple-500); color: var(--white); font-size: 24px; font-weight: 700; display: grid; place-items: center; }
+.callout h3 { margin-bottom: 4px; font-size: 32px; }
+.callout p { font-size: 26px; }
+
+/* Chrome da apresentação */
+#bar { position: fixed; left: 0; bottom: 0; height: 4px; background: var(--purple-500); transition: width var(--dur-med) var(--ease); z-index: 3; }
+#count { position: fixed; right: 24px; bottom: 16px; font: 600 14px var(--font); color: rgba(255,255,255,.5); z-index: 3; }
+#hint { position: fixed; left: 24px; bottom: 16px; font: 14px var(--font); color: rgba(255,255,255,.4); z-index: 3; transition: opacity var(--dur-slow); }
+.foot { position: absolute; left: 128px; right: 128px; bottom: 56px; display: flex; justify-content: space-between; font-size: 22px; color: var(--gray-400); }
+
+/* Mini componentes vivos (CSS do app ampliado) */
+.btn { display: inline-flex; justify-content: center; align-items: center; height: 72px; padding: 0 40px; border-radius: var(--r-pill); font-size: 26px; font-weight: 600; border: 0; font-family: inherit; cursor: pointer; }
+.btn.primary { background: var(--purple-500); color: var(--white); transition: background var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease); }
+.btn.primary:hover { background: var(--purple-600); }
+.btn.primary:active { transform: scale(.96); }
+.btn.ghost { background: transparent; color: var(--purple-500); }
+.search { display: flex; align-items: center; gap: 16px; height: 72px; padding: 0 28px; border: 2px solid #70839e; border-radius: var(--r-pill); font-size: 26px; color: var(--gray-600); background: var(--white); }
+.msg { border-radius: var(--r-card); padding: 28px 32px; font-size: 24px; line-height: 1.4; }
+.plus { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; font-size: 36px; font-weight: 500; background: var(--purple-100); color: var(--purple-500); border: 0; cursor: pointer; transition: background var(--dur-fast) var(--ease); }
+.plus.on2 { background: var(--purple-500); color: var(--white); animation: pop var(--dur-med) var(--spring); }
+@keyframes pop { from { transform: scale(.6); } }
+
+/* Movimento: as três durações rodando ao vivo */
+.track { position: relative; height: 64px; border-radius: var(--r-pill); background: rgba(255,255,255,.07); }
+.ball { position: absolute; left: 8px; top: 8px; width: 48px; height: 48px; border-radius: 50%; background: var(--lilac); }
+.on .ball { animation: slide var(--d) var(--ease) infinite alternate; animation-delay: 600ms; }
+@keyframes slide { 0%, 20% { left: 8px; } 80%, 100% { left: calc(100% - 56px); } }
+
+/* Mapa do fluxo */
+.flow { display: grid; grid-template-columns: 1fr 40px 1fr 40px 1fr 40px 1fr 40px 1fr 40px 1fr; row-gap: 20px; align-items: start; }
+.node { background: var(--white); border-radius: var(--r-card); padding: 20px; text-align: center; box-shadow: 0 8px 32px rgba(23,20,61,.08); }
+.node b { display: block; font-size: 30px; }
+.node span { font-size: 22px; color: var(--gray-600); }
+.arrow { align-self: center; text-align: center; font-size: 32px; color: var(--purple-500); font-weight: 700; padding-top: 8px; }
+.state { border: 2px dashed var(--purple-500); border-radius: 16px; padding: 10px 12px; font-size: 22px; color: var(--purple-600); text-align: center; background: var(--purple-50); }
+
+/* Gráfico de barras dos achados */
+.bars { display: grid; grid-template-columns: 420px 1fr 48px; gap: 14px 24px; align-items: center; }
+.bars .lbl { font-size: 24px; color: var(--gray-900); }
+.bars .val { font-size: 26px; font-weight: 700; text-align: right; }
+.bars .b { height: 36px; border-radius: 6px; background: var(--purple-500); transform-origin: left; }
+.bars .b.n { background: var(--gray-900); }
+.on .bars .b { animation: grow calc(var(--dur-slow) * 2) var(--ease) backwards; animation-delay: calc(var(--i) * var(--dur-fast) + 400ms); }
+@keyframes grow { from { transform: scaleX(0); } }
+
+/* Tabela de prioridade */
+.prio { width: 100%; border-collapse: collapse; font-size: 24px; }
+.prio td, .prio th { padding: 14px 16px; text-align: left; border-bottom: 1px solid var(--gray-200); }
+.prio th { font-size: 20px; text-transform: uppercase; letter-spacing: .1em; color: var(--gray-600); }
+.sev { display: inline-grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; font-weight: 800; color: var(--white); }
+
+
+/* Bloco de justificativa: Decisão · Por quê · Descartado */
+.dec { display: flex; flex-direction: column; gap: 14px; }
+.dec > div { background: var(--white); border-radius: 20px; padding: 22px 28px; box-shadow: 0 1px 0 rgba(37,44,55,.04); }
+.dec .k { display: block; font-size: 18px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; margin-bottom: 6px; }
+.dec p { font-size: 24px; line-height: 1.4; }
+.k.d { color: var(--purple-500); } .k.w { color: var(--green-700); } .k.x { color: var(--gray-600); }
+.dec .x-box { background: transparent; border: 2px dashed var(--gray-200); box-shadow: none; }
+.dark .dec > div { background: rgba(255,255,255,.06); } .dark .dec .x-box { background: transparent; border-color: rgba(255,255,255,.18); }
+.dark .k.d { color: var(--lilac); } .dark .k.w { color: #9be3b4; } .dark .k.x { color: var(--night-text); }
+.spec { font-family: var(--mono); font-size: 20px; color: var(--purple-600); background: var(--purple-100); border-radius: 8px; padding: 2px 10px; white-space: nowrap; }
+.dim { position: absolute; font-family: var(--mono); font-size: 20px; font-weight: 600; color: #c2410c; background: #fff7ed; border: 1.5px solid #fdba74; border-radius: 8px; padding: 2px 8px; white-space: nowrap; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition-duration: 1ms !important; transition-delay: 0ms !important; }
+}
+</style>
+</head>
+<body>
+<div id="stage">
+
+<!-- ═══════════ ABERTURA ═══════════ -->
+
+<!-- Capa -->
+<section class="slide glow on" aria-label="Capa">
+  <div class="float ill" aria-hidden="true" style="background-position:0% 0%;left:1060px;top:80px;width:260px;animation-delay:-1s"></div>
+  <div class="float ill" aria-hidden="true" style="background-position:50% 0%;left:1600px;top:640px;width:240px;animation-delay:-3s"></div>
+  <div class="float ill" aria-hidden="true" style="background-position:100% 0%;left:1000px;top:760px;width:220px"></div>
+  <div class="phone" data-a="right" style="--i:3;position:absolute;left:1250px;top:120px;transform:rotate(4deg)"><img src="../docs/avaliacao-telas/home.png" alt="Tela Início do app"></div>
+  <div class="col" style="width:960px;margin-top:120px;gap:40px">
+    <span class="kicker" data-a style="--i:0">O caso Marina · Design System &amp; UI</span>
+    <h1 data-a style="--i:1">Marina não pode perder outra vaga.</h1>
+    <p data-a style="--i:2;max-width:780px">Como um design system transformou uma matrícula apressada, no celular, numa interface que ela entende de primeira.</p>
+  </div>
+  <div class="foot"><span>Marcos César · Pós-graduação em Design System e UI Design</span><span>Outubro 2026</span></div>
+</section>
+
+<!-- Persona -->
+<section class="slide" aria-label="Quem é Marina">
+  <span class="kicker" data-a style="--i:0">Quem é Marina</span>
+  <h2 data-a style="--i:1;margin-top:40px;font-size:96px">19 anos. Caloura.<br>Só tem o celular.</h2>
+  <p data-a style="--i:2;max-width:900px;margin-top:40px">Não tem computador em casa. Precisa comparar disciplinas e horários depressa, com o polegar.</p>
+  <div class="row" style="margin-top:80px;gap:32px">
+    <div class="card grow" data-a="pop" style="--i:3"><div class="num accent">1</div><h3 style="margin-top:16px">vaga já perdida</h3><p class="small" style="margin-top:8px">Por demorar a decidir. Ela não quer que aconteça de novo.</p></div>
+    <div class="card grow" data-a="pop" style="--i:4"><div class="num accent">402<span style="font-size:48px">px</span></div><h3 style="margin-top:16px">de tela</h3><p class="small" style="margin-top:8px">Tudo o que importa precisa caber numa coluna.</p></div>
+    <div class="card grow" data-a="pop" style="--i:5"><div class="num accent">2</div><h3 style="margin-top:16px">medos</h3><p class="small" style="margin-top:8px">Perder a vaga enquanto decide. Errar e não conseguir voltar.</p></div>
+  </div>
+</section>
+
+<!-- A pergunta -->
+<section class="slide dark glow" aria-label="A pergunta">
+  <div class="col" style="height:100%;justify-content:center;gap:48px">
+    <span class="kicker" data-a style="--i:0">A jornada é uma só</span>
+    <h1 data-a style="--i:1;font-size:112px;max-width:1500px">Escolher a disciplina<br>e <span class="accent">garantir a vaga</span><br>antes que ela acabe.</h1>
+    <p data-a style="--i:2;max-width:1100px">Telas, componentes e tokens existem para tirar atrito desse caminho.</p>
+  </div>
+</section>
+
+<!-- Roteiro em 4 atos -->
+<section class="slide glow" aria-label="Roteiro">
+  <span class="kicker" data-a style="--i:0">Como esta história é contada</span>
+  <h2 data-a style="--i:1;margin-top:16px">Quatro atos, quatro competências.</h2>
+  <div class="row" style="margin-top:80px;gap:24px;align-items:stretch">
+    <div class="card grow col" data-a="pop" style="--i:2;gap:16px"><span class="num accent" style="font-size:96px">1</span><h3>Interface</h3><p class="small">Do wireframe à UI: grid, tipografia, cor e hierarquia.</p></div>
+    <div class="card grow col" data-a="pop" style="--i:3;gap:16px"><span class="num accent" style="font-size:96px">2</span><h3>Protótipo</h3><p class="small">Componentes, estados, movimento, navegação e acessibilidade.</p></div>
+    <div class="card grow col" data-a="pop" style="--i:4;gap:16px"><span class="num accent" style="font-size:96px">3</span><h3>Avaliação</h3><p class="small">Heurística com IA, decisão humana e prioridade.</p></div>
+    <div class="card grow col" data-a="pop" style="--i:5;gap:16px"><span class="num accent" style="font-size:96px">4</span><h3>Handoff</h3><p class="small">Design system, tokens e especificação para construir.</p></div>
+  </div>
+  <p class="small" data-a style="--i:6;margin-top:40px">O selo no canto de cada slide diz qual critério da avaliação ele demonstra.</p>
+</section>
+
+<!-- Princípios -->
+<section class="slide" aria-label="Princípios">
+  <span class="kicker" data-a style="--i:0">Antes de desenhar</span>
+  <h2 data-a style="--i:1;margin-top:16px">Três princípios que passam<br>no teste do oposto.</h2>
+  <div class="row" style="margin-top:64px;gap:32px;align-items:stretch">
+    <div class="card grow col" data-a style="--i:2;gap:20px"><h3>Disponibilidade antes da confirmação</h3><p class="small"><b>Oposto plausível:</b> mostrar vagas só no resumo, para ter menos ruído.</p><p class="small accent"><b style="color:inherit">Vence porque</b> Marina teme perder a vaga enquanto decide.</p></div>
+    <div class="card grow col" data-a style="--i:3;gap:20px"><h3>Ação reversível</h3><p class="small"><b>Oposto plausível:</b> a seleção avança direto, sem retorno.</p><p class="small accent"><b style="color:inherit">Vence porque</b> com pressa e medo de errar, poder voltar é o que permite comparar.</p></div>
+    <div class="card grow col" data-a style="--i:4;gap:20px"><h3>Conteúdo essencial no celular</h3><p class="small"><b>Oposto plausível:</b> professor e horário só no detalhe, cartões menores.</p><p class="small accent"><b style="color:inherit">Vence porque</b> comparar na lista poupa navegação.</p></div>
+  </div>
+</section>
+
+<!-- ═══════════ ATO 1 · INTERFACE ═══════════ -->
+
+<section class="slide dark glow" aria-label="Ato 1 Interface">
+  <div class="act-n" aria-hidden="true">1</div>
+  <div class="col" style="height:100%;justify-content:center;gap:40px;max-width:1200px">
+    <span class="kicker" data-a style="--i:0">Ato 1 · Interface</span>
+    <h1 data-a style="--i:1;font-size:136px">Do wireframe<br>à interface.</h1>
+    <p data-a style="--i:2;max-width:900px">Marina tem 402 pixels e pressa. Cada pixel precisa trabalhar.</p>
+  </div>
+</section>
+
+<!-- Wireframe → UI -->
+<section class="slide" aria-label="Wireframe para interface">
+  <div class="crit" data-a style="--i:0"><span>1.1</span>Layout e grid coerentes</div>
+  <span class="kicker" data-a style="--i:0">Primeiro a estrutura</span>
+  <h2 data-a style="--i:1;margin-top:16px">O esqueleto veio antes da cor.</h2>
+  <div class="row" style="margin-top:48px;gap:40px;align-items:center">
+    <div class="shot" data-a="left" style="--i:2;width:1040px;height:650px"><img src="img/wf-proposta.png" alt="Wireframe da matrícula com grid de 4 colunas sobre as telas"></div>
+    <div class="col" data-a style="--i:3;gap:12px;align-items:center"><span style="font-size:64px;color:var(--purple-500);font-weight:800">→</span></div>
+    <div class="col" data-a="right" style="--i:4;gap:20px;align-items:center">
+      <div class="phone" style="zoom:.66"><img src="../docs/avaliacao-telas/t1.png" alt="T1 final"></div>
+      <p class="small" style="text-align:center">T1 final</p>
+    </div>
+  </div>
+  <p class="small" data-a style="--i:5;margin-top:24px">Quadro 402 × 874 · margem 16 · calha 12 · alvo mínimo 44 · fluxo e estados mapeados ainda em cinza.</p>
+</section>
+
+<!-- Grid e quebras -->
+<section class="slide" aria-label="Grid e quebras">
+  <div class="crit" data-a style="--i:0"><span>1.1</span>Tamanhos de tela previstos</div>
+  <span class="kicker" data-a style="--i:0">Grid e quebras</span>
+  <h2 data-a style="--i:1;margin-top:16px">Uma coluna, duas quebras,<br>medidas em caracteres.</h2>
+  <div class="row" style="margin-top:48px;gap:56px;align-items:flex-start">
+    <div class="col grow" style="gap:20px">
+      <div class="shot" data-a="left" style="--i:2;width:100%;height:330px"><img src="img/sb-grid.png" alt="Página Grid e layout do Storybook com as margens de 16px" style="object-position:0 40%"></div>
+      <div class="row" data-a style="--i:3;gap:12px;flex-wrap:wrap"><span class="spec">coluna 402</span><span class="spec">margem 16</span><span class="spec">útil 370</span><span class="spec">calha 12 no bloco</span><span class="spec">16 entre cartões</span></div>
+      <div class="row" data-a style="--i:4;gap:16px">
+        <div class="card grow" style="padding:22px 26px"><span class="mono small accent">&lt; 360px</span><p class="small" style="margin-top:6px">Arte do cartão vai de 1/3 para 1/4 da largura</p></div>
+        <div class="card grow" style="padding:22px 26px"><span class="mono small accent">≥ 600px</span><p class="small" style="margin-top:6px">Coluna centraliza, com cantos e sombra</p></div>
+      </div>
+    </div>
+    <div class="dec" style="width:640px;flex:none">
+      <div data-a style="--i:5"><span class="k d">Decisão</span><p>Quebrar em <b>360px</b> e <b>600px</b>, nunca pelo nome de um aparelho.</p></div>
+      <div data-a style="--i:6"><span class="k w">Por quê</span><p>Abaixo de 360px o texto do cartão cai para menos de ~25 caracteres por linha. Acima de 600px a coluna de 402px (~60 caracteres, o limite de leitura confortável) já não ocupa a tela.</p></div>
+      <div class="x-box" data-a style="--i:7"><span class="k x">Descartado</span><p>A quebra de 380px do primeiro rascunho (nunca implementada) e um layout de várias colunas: Marina só tem celular.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" aria-label="Espaçamento">
+  <div class="crit" data-a style="--i:0"><span>1.1</span>Ritmo de layout</div>
+  <span class="kicker" data-a style="--i:0">Espaçamento</span>
+  <h2 data-a style="--i:1;margin-top:16px">Oito valores, cada um com uma regra.</h2>
+  <div class="row" style="margin-top:48px;gap:56px;align-items:flex-start">
+    <div class="col grow" style="gap:14px"><div class="row" data-a="left" style="--i:2;gap:20px;align-items:center"><span class="mono" style="width:44px;font-size:24px;font-weight:700">4</span><div style="width:280px;flex:none"><div style="height:32px;width:16px;background:var(--purple-500);border-radius:4px"></div></div><span style="font-size:24px;width:290px">mesma informação</span><span class="small" style="color:var(--gray-600)">selo ↔ título</span></div><div class="row" data-a="left" style="--i:3;gap:20px;align-items:center"><span class="mono" style="width:44px;font-size:24px;font-weight:700">8</span><div style="width:280px;flex:none"><div style="height:32px;width:32px;background:var(--purple-500);border-radius:4px"></div></div><span style="font-size:24px;width:290px">itens do mesmo grupo</span><span class="small" style="color:var(--gray-600)">chips entre si</span></div><div class="row" data-a="left" style="--i:4;gap:20px;align-items:center"><span class="mono" style="width:44px;font-size:24px;font-weight:700">12</span><div style="width:280px;flex:none"><div style="height:32px;width:48px;background:var(--purple-500);border-radius:4px"></div></div><span style="font-size:24px;width:290px">dentro de um bloco</span><span class="small" style="color:var(--gray-600)">arte ↔ texto</span></div><div class="row" data-a="left" style="--i:5;gap:20px;align-items:center"><span class="mono" style="width:44px;font-size:24px;font-weight:700">16</span><div style="width:280px;flex:none"><div style="height:32px;width:64px;background:var(--purple-500);border-radius:4px"></div></div><span style="font-size:24px;width:290px">margem e entre irmãos</span><span class="small" style="color:var(--gray-600)">cartões da lista</span></div><div class="row" data-a="left" style="--i:6;gap:20px;align-items:center"><span class="mono" style="width:44px;font-size:24px;font-weight:700">24</span><div style="width:280px;flex:none"><div style="height:32px;width:96px;background:var(--purple-500);border-radius:4px"></div></div><span style="font-size:24px;width:290px">entre grupos</span><span class="small" style="color:var(--gray-600)">padding da folha</span></div><div class="row" data-a="left" style="--i:7;gap:20px;align-items:center"><span class="mono" style="width:44px;font-size:24px;font-weight:700">32</span><div style="width:280px;flex:none"><div style="height:32px;width:128px;background:var(--purple-500);border-radius:4px"></div></div><span style="font-size:24px;width:290px">entre seções</span><span class="small" style="color:var(--gray-600)">“Próximas aulas”</span></div><div class="row" data-a="left" style="--i:8;gap:20px;align-items:center"><span class="mono" style="width:44px;font-size:24px;font-weight:700">48</span><div style="width:280px;flex:none"><div style="height:32px;width:192px;background:var(--purple-500);border-radius:4px"></div></div><span style="font-size:24px;width:290px">fim de bloco grande</span><span class="small" style="color:var(--gray-600)">base da confirmação</span></div><div class="row" data-a="left" style="--i:9;gap:20px;align-items:center"><span class="mono" style="width:44px;font-size:24px;font-weight:700">64</span><div style="width:280px;flex:none"><div style="height:32px;width:256px;background:var(--purple-500);border-radius:4px"></div></div><span style="font-size:24px;width:290px">reserva sob o topo</span><span class="small" style="color:var(--gray-600)">início de toda tela</span></div>
+      <p class="small" data-a style="--i:10;margin-top:12px">Auditado no navegador: nenhum espaço da tela fica fora da lista.</p>
+    </div>
+    <div class="dec" style="width:640px;flex:none">
+      <div data-a style="--i:4"><span class="k d">Decisão</span><p>Só <b>4 · 8 · 12 · 16 · 24 · 32 · 48 · 64</b>, e uma regra de uso por valor.</p></div>
+      <div data-a style="--i:5"><span class="k w">Por quê</span><p>Sem regra, dois designers escolhem valores diferentes para o mesmo caso. Com ela, o espaço diz o parentesco: quanto mais perto, mais relacionado.</p></div>
+      <div class="x-box" data-a style="--i:6"><span class="k x">Descartado</span><p>O <span class="mono">space/40</span> do Figma (fora da escala) e os 72, 96 e 200px soltos, que viraram 64, 48 e 3 × 64.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- Tipografia e hierarquia -->
+<section class="slide" aria-label="Tipografia e hierarquia">
+  <div class="crit" data-a style="--i:0"><span>1.2</span>Tipografia e hierarquia</div>
+  <span class="kicker" data-a style="--i:0">Tipografia</span>
+  <h2 data-a style="--i:1;margin-top:16px">Base 14, +4 por degrau,<br>cinco nomes de uso.</h2>
+  <div class="row" style="margin-top:44px;gap:56px;align-items:flex-start">
+    <div class="col grow" style="gap:20px">
+      <div class="card col" data-a style="--i:2;gap:20px;padding:32px 36px">
+        <div class="row" style="gap:24px;align-items:baseline"><span class="mono small" style="width:96px;color:var(--gray-400)">26/32</span><span style="font-size:52px;font-weight:700;letter-spacing:-.02em">Título de tela</span></div>
+        <div class="row" style="gap:24px;align-items:baseline"><span class="mono small" style="width:96px;color:var(--gray-400)">22/28</span><span style="font-size:44px;font-weight:700">Valor de destaque</span></div>
+        <div class="row" style="gap:24px;align-items:baseline"><span class="mono small" style="width:96px;color:var(--gray-400)">18/24</span><span style="font-size:36px;font-weight:600">Título de seção</span></div>
+        <div class="row" style="gap:24px;align-items:baseline"><span class="mono small" style="width:96px;color:var(--gray-400)">14/20</span><span style="font-size:28px">Corpo · botões · links</span></div>
+        <div class="row" style="gap:24px;align-items:baseline"><span class="mono small" style="width:96px;color:var(--gray-400)">12/16</span><span style="font-size:24px;color:var(--gray-600)">Legenda · metadados</span></div>
+      </div>
+      <p class="small" data-a style="--i:3">Amostras ampliadas 2×. Fonte do sistema (SF no iPhone): zero download, leitura nativa. Nada herda os 16px do navegador.</p>
+    </div>
+    <div class="dec" style="width:640px;flex:none">
+      <div data-a style="--i:4"><span class="k d">Decisão</span><p>Rótulo de botão no <b>corpo de 14</b>; o roxo cheio marca a única ação principal da tela.</p></div>
+      <div data-a style="--i:5"><span class="k w">Por quê</span><p>Com o botão em 18, ele ficava maior que o texto que rotula. A referência faz igual: Material 3 <span class="mono">labelLarge</span> 14/20 e Ant Design com base 14.</p></div>
+      <div class="x-box" data-a style="--i:6"><span class="k x">Descartado</span><p>Os 9 tamanhos do Figma (13, 16, 20, 24, 28, 56…), o 56px como sexto degrau e um degrau extra de 16.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- Cor e contraste -->
+<section class="slide" aria-label="Cor e contraste">
+  <div class="crit" data-a style="--i:0"><span>1.3</span>Cores e contraste</div>
+  <span class="kicker" data-a style="--i:0">Cor</span>
+  <h2 data-a style="--i:1;margin-top:16px">O mesmo cinza, dois papéis,<br>dois limites de contraste.</h2>
+  <div class="row" style="margin-top:44px;gap:56px;align-items:flex-start">
+    <div class="col grow" style="gap:20px">
+      <div class="row" style="gap:14px">
+        <div class="col grow" data-a="pop" style="--i:2;gap:8px"><div style="height:110px;border-radius:var(--r-card);background:#f6f7f8;border:2px solid var(--gray-200)"></div><span class="mono small">50 · 1,00</span></div>
+        <div class="col grow" data-a="pop" style="--i:2;gap:8px"><div style="height:110px;border-radius:var(--r-card);background:#ced5de"></div><span class="mono small">200 · 1,39</span></div>
+        <div class="col grow" data-a="pop" style="--i:3;gap:8px"><div style="height:110px;border-radius:var(--r-card);background:#70839e"></div><span class="mono small">500 · 3,61</span></div>
+        <div class="col grow" data-a="pop" style="--i:3;gap:8px"><div style="height:110px;border-radius:var(--r-card);background:#475569"></div><span class="mono small">600 · 7,06</span></div>
+        <div class="col grow" data-a="pop" style="--i:4;gap:8px"><div style="height:110px;border-radius:var(--r-card);background:#252c37"></div><span class="mono small">900 · 13,10</span></div>
+      </div>
+      <div class="card" data-a style="--i:5;padding:24px 28px"><div class="row" style="gap:20px;align-items:center"><span class="search" style="height:60px;flex:1;font-size:22px">Contorno do campo · gray/500</span><span class="mono small" style="color:var(--green-700)">3,61:1 ≥ 3:1 ✓ (1.4.11)</span></div>
+        <div class="row" style="gap:20px;align-items:center;margin-top:16px"><span style="flex:1;font-size:24px;color:#70839e">Texto secundário em gray/500</span><span class="mono small" style="color:var(--red-700)">3,61:1 &lt; 4,5:1 ✗ (1.4.3)</span></div></div>
+      <div class="row" data-a style="--i:6;gap:14px">
+        <div class="grow" style="padding:20px 24px;border-radius:20px;background:#5b46e5;color:#fff"><b style="color:#fff;font-size:26px">Ação</b> <span class="mono small">6,08:1</span></div>
+        <div class="grow" style="padding:20px 24px;border-radius:20px;background:#fdeded;color:#b91c1c"><b style="color:#b91c1c;font-size:26px">Erro</b> <span class="mono small">5,70:1</span></div>
+        <div class="grow" style="padding:20px 24px;border-radius:20px;background:#eaf7ee;color:#15803d"><b style="color:#15803d;font-size:26px">Sucesso</b> <span class="mono small">4,55:1</span></div>
+      </div>
+    </div>
+    <div class="dec" style="width:640px;flex:none">
+      <div data-a style="--i:7"><span class="k d">Decisão</span><p><span class="mono">color/text/secondary</span> aponta para <b>gray/600</b>; <b>gray/500</b> fica só na borda de controle.</p></div>
+      <div data-a style="--i:8"><span class="k w">Por quê</span><p>Texto de 14px exige 4,5:1 e componente exige 3:1. O gray/500 do Figma passa no segundo (3,61) e reprova no primeiro. Trocar o alias resolve sem tocar nos primitivos.</p></div>
+      <div class="x-box" data-a style="--i:9"><span class="k x">Descartado</span><p>Manter o alias do Figma (texto ilegível) ou criar um cinza novo, que aumentaria a paleta sem necessidade.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" aria-label="Raios, elevação e vidro">
+  <div class="crit" data-a style="--i:0"><span>1.4</span>Padrões reconhecíveis</div>
+  <span class="kicker" data-a style="--i:0">Forma e profundidade</span>
+  <h2 data-a style="--i:1;margin-top:16px">Três raios, uma sombra,<br>um material.</h2>
+  <div class="row" style="margin-top:44px;gap:28px;align-items:stretch">
+    <div class="card col grow" data-a="pop" style="--i:2;gap:14px">
+      <div class="row" style="gap:16px;align-items:flex-end"><div style="width:72px;height:72px;background:var(--lilac);border-radius:8px"></div><div style="width:96px;height:96px;background:var(--lilac);border-radius:24px"></div><div style="width:120px;height:56px;background:var(--lilac);border-radius:9999px"></div></div>
+      <h3 style="margin-top:8px">8 · 24 · pílula</h3>
+      <p class="small"><b>Por quê o 8:</b> o bloco de 2h da agenda tem 32px de altura. Com 16 de raio, virava pílula.</p>
+      <p class="small"><b>Descartado:</b> usar 8 só na agenda, que daria 4 raios, acima do limite de 3.</p>
+    </div>
+    <div class="card col grow" data-a="pop" style="--i:3;gap:14px">
+      <div class="row" style="gap:20px;align-items:center;height:96px"><div style="width:120px;height:72px;background:var(--white);border:2px solid var(--gray-200);border-radius:16px"></div><div style="width:120px;height:72px;background:var(--white);border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,.14)"></div></div>
+      <h3 style="margin-top:8px">Só o que flutua tem sombra</h3>
+      <p class="small"><b>Por quê:</b> sombra diz “isto está acima e pode cobrir conteúdo”. Cartão plano não compete com a barra que flutua.</p>
+      <p class="small"><b>Token:</b> <span class="mono">shadow/float</span> = 0 8 32 preto 14%.</p>
+    </div>
+    <div class="card col grow" data-a="pop" style="--i:4;gap:14px">
+      <div class="row" style="gap:16px;align-items:baseline;height:96px"><span class="num" style="font-size:64px;color:var(--red-700)">72%</span><span class="mono small">3,37:1</span><span style="font-size:36px;color:var(--gray-400)">→</span><span class="num" style="font-size:64px;color:var(--green-700)">86%</span><span class="mono small">4,59:1</span></div>
+      <h3 style="margin-top:8px">Vidro branco 86% + blur 24</h3>
+      <p class="small"><b>Por quê:</b> 86% é o mínimo que mantém 4,5:1 com conteúdo escuro passando por baixo.</p>
+      <p class="small"><b>Descartado:</b> os 72% do padrão do iOS, reprovados na medição.</p>
+    </div>
+  </div>
+  <p class="small" data-a style="--i:5;margin-top:28px">Vidro só nas barras que flutuam (topo, tab bar, acessório de seleção). Com “reduzir transparência” ligado, elas viram superfície sólida.</p>
+</section>
+
+<!-- Consistência entre telas -->
+<section class="slide glow" aria-label="Consistência entre telas">
+  <div class="crit" data-a style="--i:0"><span>1.4</span>Consistência entre telas</div>
+  <span class="kicker" data-a style="--i:0">Consistência</span>
+  <h2 data-a style="--i:1;margin-top:16px">Mesmos padrões, contextos diferentes.</h2>
+  <p data-a style="--i:2;margin-top:16px;max-width:1500px" class="small">Cartão, chips, barra flutuante de vidro e tab bar se repetem. Cada tela ajusta só o que o contexto pede: a T3 fixa um resumo alto, a T4 tira a tab bar para celebrar.</p>
+  <div class="row" style="margin-top:40px;gap:28px;align-items:flex-start">
+    <div class="col" data-a style="--i:3;gap:12px;align-items:center"><div class="phone" style="zoom:.64"><img src="../docs/avaliacao-telas/t1.png" alt="T1 Disciplinas"></div><h3>T1 · Escolher</h3></div>
+    <div class="col" data-a style="--i:4;gap:12px;align-items:center"><div class="phone" style="zoom:.64"><img src="../docs/avaliacao-telas/t2.png" alt="T2 Detalhe"></div><h3>T2 · Conhecer</h3></div>
+    <div class="col" data-a style="--i:5;gap:12px;align-items:center"><div class="phone" style="zoom:.64"><img src="../docs/avaliacao-telas/t3.png" alt="T3 Revisar"></div><h3>T3 · Revisar</h3></div>
+    <div class="col" data-a style="--i:6;gap:12px;align-items:center"><div class="phone" style="zoom:.64"><img src="../docs/avaliacao-telas/t4.png" alt="T4 Confirmação"></div><h3>T4 · Garantir</h3></div>
+    <div class="col" data-a style="--i:7;gap:12px;align-items:center"><div class="phone" style="zoom:.64"><img src="../docs/avaliacao-telas/t5.png" alt="T5 Minhas matrículas"></div><h3>T5 · Acompanhar</h3></div>
+  </div>
+</section>
+
+<!-- ═══════════ ATO 2 · PROTÓTIPO ═══════════ -->
+
+<section class="slide dark glow" aria-label="Ato 2 Protótipo">
+  <div class="act-n" aria-hidden="true">2</div>
+  <div class="col" style="height:100%;justify-content:center;gap:40px;max-width:1200px">
+    <span class="kicker" data-a style="--i:0">Ato 2 · Protótipo</span>
+    <h1 data-a style="--i:1;font-size:136px">Feito para tocar,<br>errar e voltar.</h1>
+    <p data-a style="--i:2;max-width:960px">Um protótipo em React, navegável de ponta a ponta, construído com as mesmas peças do design system.</p>
+  </div>
+</section>
+
+<!-- Componentes reutilizáveis -->
+<section class="slide" aria-label="Componentes reutilizáveis">
+  <div class="crit" data-a style="--i:0"><span>2.1</span>Componentes reutilizáveis</div>
+  <span class="kicker" data-a style="--i:0">Anatomia · cartão de disciplina</span>
+  <h2 data-a style="--i:1;margin-top:16px">Cada medida do cartão<br>vem de um token.</h2>
+  <div class="row" style="margin-top:56px;gap:64px;align-items:flex-start">
+    <div class="col" style="width:880px;gap:24px">
+      <div data-a="left" style="--i:2;position:relative;padding:56px 72px 64px 0">
+        <div style="position:relative;width:740px;background:var(--white);border-radius:48px;padding:16px;display:flex;gap:24px;box-shadow:0 8px 32px rgba(23,20,61,.08)">
+          <div style="position:relative;width:236px;height:236px;flex:none;border-radius:16px;background:url('../public/assets/discipline-ucd.png') center/cover"><div class="ill" style="position:absolute;inset:20px;aspect-ratio:auto;background-position:0% 0%"></div></div>
+          <div class="col grow" style="gap:8px;padding:16px 0">
+            <span class="pill red" style="font-size:22px;padding:6px 18px;align-self:flex-start">Últimas vagas</span>
+            <b style="font-size:30px">User Centered Design</b>
+            <span style="font-size:24px;color:var(--gray-600)">Cláudia Ribeiro</span>
+            <span style="font-size:24px;color:var(--gray-600)">Seg/Qua · 8h–12h</span>
+            <span style="font-size:24px;color:var(--gray-600)">6 vagas disponíveis</span>
+          </div>
+          <button class="plus" style="position:absolute;right:20px;top:20px;width:96px;height:96px;font-size:48px" aria-pressed="false" aria-label="Adicionar User Centered Design à matrícula" onclick="event.stopPropagation();this.classList.toggle('on2');this.textContent=this.classList.contains('on2')?'✓':'+';this.setAttribute('aria-pressed',this.classList.contains('on2'))">+</button>
+        </div>
+        <span class="dim" style="left:0;top:8px">radius/card 24</span>
+        <span class="dim" style="left:24px;bottom:8px">arte 1/3 · radius/inner 8</span>
+        <span class="dim" style="left:400px;bottom:8px">space/12 arte ↔ texto</span>
+        <span class="dim" style="right:0;top:8px">alvo 48 × 48</span>
+      </div>
+      <p class="small" data-a style="--i:3">Ampliado 2×. Toque no + para ver o estado selecionado com a mola de 240ms.</p>
+    </div>
+    <div class="dec grow">
+      <div data-a style="--i:4"><span class="k d">Decisão</span><p>Um <b>+ redondo de 48px</b> no cartão, ao lado de um segundo botão que cobre o cartão e abre o detalhe.</p></div>
+      <div data-a style="--i:5"><span class="k w">Por quê</span><p>Selecionar sem sair da lista. Dois botões irmãos, sem aninhar, e cada um tem nome próprio para leitor de tela (<span class="mono">aria-pressed</span> no +).</p></div>
+      <div class="x-box" data-a style="--i:6"><span class="k x">Descartado</span><p>Caixa de seleção (sugestão IA-13, recusada: o + é mais reconhecível) e cartão sem ação, só com seleção no detalhe.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" aria-label="Bottom sheet">
+  <div class="crit" data-a style="--i:0"><span>2.1</span>Adequado à função</div>
+  <span class="kicker" data-a style="--i:0">Componente · bottom sheet</span>
+  <h2 data-a style="--i:1;margin-top:16px">Quatro diálogos,<br>um componente.</h2>
+  <div class="row" style="margin-top:48px;gap:64px;align-items:flex-start">
+    <div class="col" style="width:560px;gap:20px">
+      <div data-a="pop" style="--i:2;background:rgba(23,20,61,.45);border-radius:40px;padding:80px 0 0;overflow:hidden">
+        <div style="background:var(--gray-50);border-radius:40px 40px 0 0;padding:44px 40px;display:flex;flex-direction:column;gap:16px">
+          <b style="font-size:34px">Remover disciplina?</b>
+          <p class="small">Dataviz sai da sua matrícula e volta para a lista de disciplinas. Você pode escolher ela de novo depois.</p>
+          <button class="btn primary" style="width:100%;background:#b91c1c;margin-top:8px">Remover disciplina</button>
+          <button class="btn ghost" style="width:100%;outline:3px solid var(--purple-500);outline-offset:2px">Manter disciplina</button>
+        </div>
+      </div>
+      <p class="small" data-a style="--i:3">O anel roxo marca onde o foco começa: na ação segura.</p>
+    </div>
+    <div class="col grow" style="gap:14px">
+      <div class="dec">
+        <div data-a style="--i:4"><span class="k d">Decisão</span><p>Remover, descartar, vaga esgotada e perfil do professor usam o mesmo <span class="mono">BottomSheet</span>: sobe de baixo, sem ×, ação principal em cima.</p></div>
+        <div data-a style="--i:5"><span class="k w">Por quê</span><p>No celular a ação fica ao alcance do polegar. A lógica de abrir, fechar e devolver o foco estava repetida em 4 lugares; virou uma peça só, com página no Storybook.</p></div>
+        <div class="x-box" data-a style="--i:6"><span class="k x">Descartado</span><p>Diálogo centrado e repetir o CSS do perfil em cada caso.</p></div>
+      </div>
+      <div class="row" data-a style="--i:7;gap:10px;flex-wrap:wrap;margin-top:6px"><span class="spec">&lt;dialog&gt; modal</span><span class="spec">alertdialog na E3</span><span class="spec">Esc · tocar fora</span><span class="spec">foco volta a quem abriu</span><span class="spec">240ms</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- Estados -->
+<section class="slide" aria-label="Estados">
+  <div class="crit" data-a style="--i:0"><span>2.2</span>Estados e respostas</div>
+  <span class="kicker" data-a style="--i:0">Estados</span>
+  <h2 data-a style="--i:1;margin-top:16px">Toda resposta tem uma tela desenhada.</h2>
+  <div class="row" style="margin-top:48px;gap:48px;align-items:flex-start">
+    <div class="shot" data-a="left" style="--i:2;width:1100px;height:688px"><img src="img/sb-prototipo.png" alt="Grade Projeto/Protótipo do Storybook com as telas e estados do fluxo"></div>
+    <div class="col grow" style="gap:16px">
+      <div class="card" data-a style="--i:3;padding:24px 28px"><b style="font-size:28px">E1 · Sem resultado</b><p class="small">Diz o que fazer: “Limpar filtros”.</p></div>
+      <div class="card" data-a style="--i:4;padding:24px 28px"><b style="font-size:28px">E2 · Carregando</b><p class="small">Esqueleto no formato do cartão.</p></div>
+      <div class="card" data-a style="--i:5;padding:24px 28px"><b style="font-size:28px">E3 · Vaga esgotada</b><p class="small">Aviso com saída, nada perdido.</p></div>
+      <div class="card" data-a style="--i:6;padding:24px 28px"><b style="font-size:28px">E4 · Busca longa</b><p class="small">“Use até 60 caracteres.”</p></div>
+      <p class="small" data-a style="--i:7">E ainda: choque de horário e limite de créditos.</p>
+    </div>
+  </div>
+</section>
+
+<!-- E3 -->
+<section class="slide" aria-label="Estado E3 vaga esgotada" style="background:radial-gradient(circle at 85% 20%, #fbd5d5 0, rgba(251,213,213,0) 45%), var(--gray-50)">
+  <div class="crit" data-a style="--i:0"><span>2.2</span>Resposta clara ao usuário</div>
+  <div class="row" style="height:100%;gap:128px;align-items:center">
+    <div class="col grow" style="gap:40px">
+      <span class="pill red" data-a style="--i:0;align-self:flex-start">E3 · Vaga esgotada</span>
+      <h2 data-a style="--i:1;font-size:88px">O pior momento,<br>desenhado primeiro.</h2>
+      <p data-a style="--i:2;max-width:880px">Outra pessoa leva a última vaga de Dataviz enquanto Marina decide. Nada é confirmado, <b>nada é perdido</b>, e a tela diz exatamente o que fazer.</p>
+      <div class="col" data-a style="--i:3;gap:12px">
+        <p class="small"><b>O que aconteceu:</b> “A vaga de Dataviz acabou.”</p>
+        <p class="small"><b>O que não mudou:</b> “Sua matrícula ainda não foi confirmada.”</p>
+        <p class="small"><b>O que fazer:</b> “Remover Dataviz” ou “Fechar”.</p>
+      </div>
+    </div>
+    <div class="phone" data-a="pop" style="--i:1;zoom:.84;margin-top:120px"><img src="../docs/avaliacao-telas/e3.png" alt="Aviso: a vaga de Dataviz acabou"></div>
+  </div>
+</section>
+
+<!-- Transições e microinterações -->
+<section class="slide dark glow" aria-label="Transições e microinterações">
+  <div class="crit" data-a style="--i:0"><span>2.2</span>Transições e microinterações</div>
+  <span class="kicker" data-a style="--i:0">Movimento</span>
+  <h2 data-a style="--i:1;margin-top:16px">Três durações, cada uma<br>para um tipo de resposta.</h2>
+  <div class="row" style="margin-top:44px;gap:56px;align-items:flex-start">
+    <div class="col grow" style="gap:22px">
+      <div data-a style="--i:2"><div class="row" style="justify-content:space-between;margin-bottom:8px"><b style="font-size:28px">Rápida · 120ms</b><span class="small" style="color:var(--night-text)">toque, troca de segmento</span></div><div class="track"><div class="ball" style="--d:120ms"></div></div></div>
+      <div data-a style="--i:3"><div class="row" style="justify-content:space-between;margin-bottom:8px"><b style="font-size:28px">Média · 240ms</b><span class="small" style="color:var(--night-text)">navegar, folhas, + → ✓</span></div><div class="track"><div class="ball" style="--d:240ms"></div></div></div>
+      <div data-a style="--i:4"><div class="row" style="justify-content:space-between;margin-bottom:8px"><b style="font-size:28px">Lenta · 400ms</b><span class="small" style="color:var(--night-text)">carregar, ✓ da confirmação</span></div><div class="track"><div class="ball" style="--d:400ms"></div></div></div>
+      <div class="row" data-a style="--i:5;gap:12px;flex-wrap:wrap;margin-top:8px"><span class="spec">ease/standard .2 .8 .2 1</span><span class="spec">ease/spring .34 1.56 .64 1</span><span class="spec">esqueleto 4 × 400</span></div>
+    </div>
+    <div class="dec" style="width:640px;flex:none">
+      <div data-a style="--i:6"><span class="k d">Decisão</span><p>A <b>mola</b> só aparece quando algo foi confirmado (adicionar, ✓). Navegar usa a curva padrão.</p></div>
+      <div data-a style="--i:7"><span class="k w">Por quê</span><p>Movimento é informação: deslizar diz “mudei de tela”, saltar diz “deu certo”. Se tudo saltasse, nada comunicaria sucesso. Com “reduzir movimento”, as durações zeram e os laços rodam uma vez só (IA-08).</p></div>
+      <div class="x-box" data-a style="--i:8"><span class="k x">Descartado</span><p>A animação decorativa de flutuar e o laço infinito do esqueleto com movimento reduzido ligado, que faria piscar.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- Navegação -->
+<section class="slide glow" aria-label="Navegação">
+  <div class="crit" data-a style="--i:0"><span>2.3</span>Navegação completa</div>
+  <span class="kicker" data-a style="--i:0">Navegação</span>
+  <h2 data-a style="--i:1;margin-top:16px">Um caminho, e saídas que<br>fazem o que prometem.</h2>
+  <div class="flow" style="margin-top:56px">
+    <div class="node" data-a style="--i:2"><b>Início</b><span>prazo e aulas</span></div><div class="arrow" data-a style="--i:2">→</div>
+    <div class="node" data-a style="--i:3"><b>T1</b><span>escolher</span></div><div class="arrow" data-a style="--i:3">→</div>
+    <div class="node" data-a style="--i:4"><b>T2</b><span>conhecer</span></div><div class="arrow" data-a style="--i:4">→</div>
+    <div class="node" data-a style="--i:5"><b>T3</b><span>revisar</span></div><div class="arrow" data-a style="--i:5">→</div>
+    <div class="node" data-a style="--i:6"><b>T4</b><span>garantir</span></div><div class="arrow" data-a style="--i:6">→</div>
+    <div class="node" data-a style="--i:7"><b>T5</b><span>acompanhar</span></div>
+    <div></div><div></div>
+    <div class="col" data-a style="--i:8;gap:10px"><div class="state">E1 sem resultado</div><div class="state">E2 carregando</div><div class="state">E4 busca longa</div></div><div></div>
+    <div class="state" data-a style="--i:8">choque de horário</div><div></div>
+    <div class="col" data-a style="--i:8;gap:10px"><div class="state" style="border-color:var(--red-700);color:var(--red-700);background:var(--red-50)">E3 vaga esgotada</div><div class="state">limite de créditos</div></div><div></div>
+    <div></div><div></div><div></div>
+  </div>
+  <div class="row" style="margin-top:48px;gap:24px">
+    <div class="card grow" data-a="pop" style="--i:9;padding:28px 32px"><h3 class="accent">Voltar</h3><p class="small">preserva a seleção</p></div>
+    <div class="card grow" data-a="pop" style="--i:10;padding:28px 32px"><h3 class="accent">Cancelar</h3><p class="small">descarta, depois de perguntar</p></div>
+    <div class="card grow" data-a="pop" style="--i:11;padding:28px 32px"><h3 class="accent">Desfazer</h3><p class="small">reverte a última ação</p></div>
+    <div class="card grow" data-a="pop" style="--i:12;padding:28px 32px"><h3 class="accent">Fechar</h3><p class="small">não altera nada</p></div>
+  </div>
+</section>
+
+<!-- Acessibilidade validada -->
+<section class="slide" aria-label="Acessibilidade">
+  <div class="crit" data-a style="--i:0"><span>2.4</span>Acessibilidade validada</div>
+  <div class="row" style="height:100%;gap:96px;align-items:center">
+    <div style="width:402px;height:856px;border-radius:var(--r-card);overflow:hidden;box-shadow:0 24px 64px rgba(23,20,61,.18);flex:none" data-a="left">
+      <img src="../evidencias/foco/T1-ordem-de-foco.png" alt="Ordem de foco numerada da T1" style="width:402px;display:block">
+    </div>
+    <div class="col grow" style="gap:32px">
+      <span class="kicker" data-a style="--i:1">Acessibilidade</span>
+      <h2 data-a style="--i:2">Do início ao fim,<br>só com o teclado.</h2>
+      <p data-a style="--i:3">27 paradas de foco numeradas na T1. Toda sobreposição fecha com Esc e devolve o foco. Contraste medido e axe-core em todas as telas.</p>
+      <div class="row" style="gap:16px;flex-wrap:wrap;margin-top:8px">
+        <div class="card" data-a="pop" style="--i:4;padding:24px 28px"><b style="font-size:28px">2.5.8</b><p class="small">Alvos de 48px</p></div>
+        <div class="card" data-a="pop" style="--i:5;padding:24px 28px"><b style="font-size:28px">1.4.3</b><p class="small">Contraste ≥ 4,5:1</p></div>
+        <div class="card" data-a="pop" style="--i:6;padding:24px 28px"><b style="font-size:28px">1.4.1</b><p class="small">Nunca só a cor</p></div>
+        <div class="card" data-a="pop" style="--i:7;padding:24px 28px"><b style="font-size:28px">2.4.7</b><p class="small">Foco roxo de 3px</p></div>
+        <div class="card" data-a="pop" style="--i:8;padding:24px 28px"><b style="font-size:28px">3.3.3</b><p class="small">Erro diz o que fazer</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ ATO 3 · AVALIAÇÃO ═══════════ -->
+
+<section class="slide dark glow" aria-label="Ato 3 Avaliação">
+  <div class="act-n" aria-hidden="true">3</div>
+  <div class="col" style="height:100%;justify-content:center;gap:40px;max-width:1200px">
+    <span class="kicker" data-a style="--i:0">Ato 3 · Avaliação</span>
+    <h1 data-a style="--i:1;font-size:136px">A IA sugeriu.<br>Eu decidi.</h1>
+    <p data-a style="--i:2;max-width:980px">Avaliação heurística com Claude Code e axe-core 4.10.2. Nenhum achado entrou no produto sem uma decisão humana.</p>
+  </div>
+</section>
+
+<!-- Achados mapeados -->
+<section class="slide" aria-label="Achados mapeados">
+  <div class="crit" data-a style="--i:0"><span>3.1</span>Problemas ligados a princípios</div>
+  <span class="kicker" data-a style="--i:0">Avaliação heurística</span>
+  <h2 data-a style="--i:1;margin-top:16px">22 achados, cada um ligado<br>a um princípio.</h2>
+  <div class="row" style="margin-top:48px;gap:80px;align-items:flex-start">
+    <div class="bars grow" data-a style="--i:2">
+      <span class="lbl"><b>WCAG</b> (norma)</span><div class="b n" style="--i:0;width:100%"></div><span class="val">7</span>
+      <span class="lbl">H1 · Visibilidade do estado</span><div class="b" style="--i:1;width:57%"></div><span class="val">4</span>
+      <span class="lbl">H6 · Reconhecer, não lembrar</span><div class="b" style="--i:2;width:43%"></div><span class="val">3</span>
+      <span class="lbl">H5 · Prevenção de erro</span><div class="b" style="--i:3;width:29%"></div><span class="val">2</span>
+      <span class="lbl">H9 · Recuperar de erros</span><div class="b" style="--i:4;width:29%"></div><span class="val">2</span>
+      <span class="lbl">H2 · Mundo real</span><div class="b" style="--i:5;width:14%"></div><span class="val">1</span>
+      <span class="lbl">H3 · Controle e liberdade</span><div class="b" style="--i:6;width:14%"></div><span class="val">1</span>
+      <span class="lbl">H4 · Consistência</span><div class="b" style="--i:7;width:14%"></div><span class="val">1</span>
+      <span class="lbl">H8 · Design minimalista</span><div class="b" style="--i:8;width:14%"></div><span class="val">1</span>
+    </div>
+    <div class="card col" data-a style="--i:3;width:560px;gap:14px">
+      <h3>Cada achado responde</h3>
+      <p class="small">1. Onde está</p><p class="small">2. O que a IA viu</p><p class="small">3. Heurística ou critério WCAG</p><p class="small">4. Por que é problema para Marina</p><p class="small">5. Severidade (frequência, impacto, persistência)</p><p class="small">6. Correção sugerida</p><p class="small accent"><b style="color:inherit">7. Decisão do estudante e motivo</b></p>
+    </div>
+  </div>
+</section>
+
+<!-- Acessibilidade com evidência -->
+<section class="slide" aria-label="Acessibilidade com evidência">
+  <div class="crit" data-a style="--i:0"><span>3.2</span>Evidências observáveis</div>
+  <span class="kicker" data-a style="--i:0">Acessibilidade</span>
+  <h2 data-a style="--i:1;margin-top:16px">Problema só conta se der<br>para medir.</h2>
+  <div class="row" style="margin-top:64px;gap:32px;align-items:stretch">
+    <div class="card grow col" data-a="pop" style="--i:2;gap:16px"><span class="pill red" style="align-self:flex-start;font-size:22px">IA-01 · WCAG 1.4.3</span><h3>Botão de perigo</h3><div class="row" style="gap:16px;align-items:baseline"><span class="num" style="font-size:72px;color:var(--red-700)">3,91</span><span style="font-size:40px;color:var(--gray-400)">→</span><span class="num" style="font-size:72px;color:var(--green-700)">6,47</span></div><p class="small">Texto branco sobre o vermelho antigo. O fundo passou a usar o token de texto de erro.</p></div>
+    <div class="card grow col" data-a="pop" style="--i:3;gap:16px"><span class="pill red" style="align-self:flex-start;font-size:22px">IA-06 · WCAG 1.4.11</span><h3>Contorno de controle</h3><div class="row" style="gap:16px;align-items:baseline"><span class="num" style="font-size:72px;color:var(--red-700)">1,14</span><span style="font-size:40px;color:var(--gray-400)">→</span><span class="num" style="font-size:72px;color:var(--green-700)">3,61</span></div><p class="small">Busca, chips e seletor ganham um token novo de borda de controle.</p></div>
+    <div class="card grow col" data-a="pop" style="--i:4;gap:16px"><span class="pill red" style="align-self:flex-start;font-size:22px">IA-02 · WCAG 1.3.1</span><h3>Região principal</h3><div class="row" style="gap:16px;align-items:baseline"><span class="num" style="font-size:72px;color:var(--red-700)">3</span><span style="font-size:40px;color:var(--gray-400)">→</span><span class="num" style="font-size:72px;color:var(--green-700)">0</span></div><p class="small">Telas sem &lt;main&gt; segundo o axe (T2, T3 e T4), justamente o caminho da matrícula.</p></div>
+  </div>
+  <p class="small" data-a style="--i:5;margin-top:32px">Razões de contraste calculadas pela fórmula de luminância WCAG; estrutura conferida pelo axe-core e pela árvore de acessibilidade.</p>
+</section>
+
+<!-- Humano x IA -->
+<section class="slide" aria-label="Humano e IA">
+  <div class="crit" data-a style="--i:0"><span>3.3</span>Humano × IA</div>
+  <span class="kicker" data-a style="--i:0">Convergências e divergências</span>
+  <h2 data-a style="--i:1;margin-top:16px">Onde concordamos, e onde não.</h2>
+  <div class="row" style="margin-top:48px;gap:24px;align-items:stretch">
+    <div class="card col" data-a="pop" style="--i:2;width:300px;gap:8px"><div class="num" style="color:var(--green-700)">11</div><p>aceitos</p><p class="small">contraste, estrutura, rótulos, títulos de tela</p></div>
+    <div class="card col" data-a="pop" style="--i:3;width:300px;gap:8px"><div class="num accent">9</div><p>recusados, com motivo</p><p class="small">2 ainda a registrar</p></div>
+    <div class="col grow" style="gap:24px">
+      <div class="card" data-a style="--i:4;padding:32px 36px"><p style="color:var(--gray-900);font-size:30px">“Trocar o + por caixa de seleção?” <span class="accent">Não: é altamente reconhecível que o + é para adicionar.</span></p><p class="small" style="margin-top:8px">IA-13, recusado. IA-16 também: chips de 36px “dentro dos padrões aceitáveis” (mínimo AA é 24).</p></div>
+      <div class="card" data-a style="--i:5;padding:32px 36px"><p style="color:var(--gray-900);font-size:30px">A IA deu severidade 1 a confirmar sem “tem certeza?”. <span class="accent">Eu dei 4.</span></p><p class="small" style="margin-top:8px">IA-14: é a ação que gasta a vaga. Virou a folha “Confirmar matrícula?”.</p></div>
+    </div>
+  </div>
+  <div class="card" data-a style="--i:6;margin-top:24px;padding:28px 36px;background:var(--purple-100)"><p style="color:var(--purple-600);font-size:26px"><b style="color:inherit">Limite das duas análises:</b> nenhuma usou o app com pressa. O teste com uma pessoa real (roteiro de 3 tarefas pronto) e o leitor de tela no iPhone ainda estão pendentes.</p></div>
+</section>
+
+<!-- Priorização -->
+<section class="slide" aria-label="Priorização">
+  <div class="crit" data-a style="--i:0"><span>3.4</span>Priorização por impacto</div>
+  <span class="kicker" data-a style="--i:0">Priorização</span>
+  <h2 data-a style="--i:1;margin-top:16px">Primeiro o que trava a matrícula.</h2>
+  <table class="prio" data-a style="--i:2;margin-top:40px">
+    <tr><th style="width:12%">Minha sev.</th><th style="width:12%">Achado</th><th style="width:50%">O que muda para Marina</th><th>Resultado</th></tr>
+    <tr><td><span class="sev" style="background:var(--red-700)">4</span></td><td class="mono">IA-02</td><td>Leitor de tela pula direto para o conteúdo em T2, T3 e T4</td><td style="color:var(--green-700);font-weight:600">Aplicado</td></tr>
+    <tr><td><span class="sev" style="background:var(--red-700)">4</span></td><td class="mono">IA-14</td><td>Confirmar a matrícula pergunta uma vez antes de gastar a vaga</td><td style="color:var(--green-700);font-weight:600">Aplicado</td></tr>
+    <tr><td><span class="sev" style="background:#c2410c">3</span></td><td class="mono">IA-01</td><td>Botão de remover legível (3,91 → 6,47:1)</td><td style="color:var(--green-700);font-weight:600">Aplicado</td></tr>
+    <tr><td><span class="sev" style="background:#c2410c">3</span></td><td class="mono">IA-22</td><td>Nome da aula não se parte no meio na agenda</td><td style="color:var(--green-700);font-weight:600">Aplicado</td></tr>
+    <tr><td><span class="sev" style="background:var(--purple-500)">2</span></td><td class="mono">IA-03 · 05 · 06</td><td>Título por tela, botões com verbo + objeto, contorno 3:1</td><td style="color:var(--green-700);font-weight:600">Aplicados</td></tr>
+    <tr><td><span class="sev" style="background:var(--gray-400)">–</span></td><td class="mono">9 achados</td><td>Opinião sem impacto de uso, ou já corrigidos</td><td style="color:var(--gray-600);font-weight:600">Recusados, com motivo</td></tr>
+  </table>
+  <p class="small" data-a style="--i:3;margin-top:28px">Critério: o que impede ou arrisca a matrícula vem antes do que só incomoda. Severidade, decisão e motivo ficam registrados em docs/avaliacao-heuristica-exportada.md.</p>
+</section>
+
+<!-- ═══════════ ATO 4 · HANDOFF ═══════════ -->
+
+<section class="slide dark glow" aria-label="Ato 4 Handoff">
+  <div class="act-n" aria-hidden="true">4</div>
+  <div class="col" style="height:100%;justify-content:center;gap:40px;max-width:1200px">
+    <span class="kicker" data-a style="--i:0">Ato 4 · Handoff</span>
+    <h1 data-a style="--i:1;font-size:136px">Para chegar até<br>Marina, alguém<br>precisa construir.</h1>
+    <p data-a style="--i:2;max-width:980px">O design system é o contrato entre o Figma, o código e quem vem depois.</p>
+  </div>
+</section>
+
+<!-- DS organizado -->
+<section class="slide" aria-label="Design system organizado">
+  <div class="crit" data-a style="--i:0"><span>4.1</span>Design system organizado</div>
+  <div class="row" style="height:100%;gap:80px;align-items:center">
+    <div class="col" style="width:640px;gap:32px">
+      <span class="kicker" data-a style="--i:0">Storybook</span>
+      <h2 data-a style="--i:1">Um lugar só para tudo que se vê.</h2>
+      <div class="col" style="gap:14px">
+        <p data-a style="--i:2"><b>Fundamentos</b> · 8 guias visuais: grid, espaço, tipografia, cor, raios, movimento, camadas</p>
+        <p data-a style="--i:3"><b>Átomos → Moléculas → Organismos</b> · cada um com variantes e estados</p>
+        <p data-a style="--i:4"><b>Projeto/Protótipo</b> · as telas e estados reais, lado a lado</p>
+      </div>
+    </div>
+    <div class="shot" data-a="right" style="--i:2;width:944px;height:590px"><img src="img/sb-manager.png" alt="Storybook com a barra lateral de Fundamentos, Átomos, Moléculas e Organismos"></div>
+  </div>
+</section>
+
+<!-- Tokens documentados -->
+<section class="slide glow" aria-label="Tokens documentados">
+  <div class="crit" data-a style="--i:0"><span>4.2</span>Tokens com nome, valor e regra</div>
+  <span class="kicker" data-a style="--i:0">Tabela de tokens · recorte</span>
+  <h2 data-a style="--i:1;margin-top:16px">Todo token diz por que existe.</h2>
+  <div class="row" style="margin-top:40px;gap:48px;align-items:flex-start">
+    <table class="prio" data-a style="--i:2;font-size:21px;background:var(--white);border-radius:var(--r-card);flex:1">
+      <tr><th style="width:31%">Nome</th><th style="width:21%">Valor</th><th style="width:14%">Camada</th><th>Razão</th></tr>
+      <tr><td class="mono">color/purple/500</td><td class="mono">#5b46e5</td><td>Primitiva</td><td>Marca e ação</td></tr>
+      <tr><td class="mono">color/gray/600</td><td class="mono">#475569</td><td>Primitiva</td><td>Texto secundário legível</td></tr>
+      <tr><td class="mono">space/48</td><td class="mono">48px</td><td>Primitiva</td><td>Fim de bloco grande; o Figma só tinha 40</td></tr>
+      <tr><td class="mono">color/text/secondary</td><td class="mono">gray/600</td><td>Semântica</td><td>7,06:1; ajuste do Figma</td></tr>
+      <tr><td class="mono">color/feedback/error/bg</td><td class="mono">red/50</td><td>Semântica</td><td>Erro sem depender só da cor</td></tr>
+      <tr><td class="mono">material/glass</td><td class="mono">white 86% + blur 24</td><td>Semântica</td><td>Mínimo que mantém 4,5:1</td></tr>
+      <tr><td class="mono">radius/card</td><td class="mono">radius/xl</td><td>Componente</td><td>Cartão e folha a 24px</td></tr>
+      <tr><td class="mono">radius/inner</td><td class="mono">radius/sm</td><td>Componente</td><td>Arte, agenda e caixa a 8px</td></tr>
+    </table>
+    <div class="col" style="width:440px;gap:14px;align-items:center">
+      <div data-a="pop" style="--i:5;width:220px;padding:20px;border-radius:var(--r-card);background:var(--purple-500);color:#fff;text-align:center"><div style="font-size:48px;font-weight:800">4</div><div style="font-size:22px;font-weight:600">Componente</div></div>
+      <div data-a="pop" style="--i:4;width:330px;padding:20px;border-radius:var(--r-card);background:var(--purple-100);color:var(--purple-600);text-align:center"><div style="font-size:48px;font-weight:800">15</div><div style="font-size:22px;font-weight:600">Semântica</div></div>
+      <div data-a="pop" style="--i:3;width:440px;padding:20px;border-radius:var(--r-card);background:var(--white);text-align:center"><div style="font-size:48px;font-weight:800">19</div><div style="font-size:22px;font-weight:600">Primitiva</div></div>
+      <p class="small" data-a style="--i:6;margin-top:8px">Hex só na base. Troque o primitivo e tudo que depende dele muda junto; troque o semântico e só o papel muda. Poucos de componente: uma pirâmide invertida seria uma lista de exceções.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Especificação de componente -->
+<section class="slide" aria-label="Especificação de componente">
+  <div class="crit" data-a style="--i:0"><span>4.3</span>Especificações completas</div>
+  <div class="row" style="height:100%;gap:80px;align-items:center">
+    <div class="shot" data-a="left" style="--i:1;width:880px;height:780px"><img src="img/sb-docs-cartao.png" alt="Página Docs do cartão de disciplina com as sete seções" style="object-position:top center"></div>
+    <div class="col grow" style="gap:28px">
+      <span class="kicker" data-a style="--i:0">Página de componente</span>
+      <h2 data-a style="--i:1">Sete perguntas que o dev faria.</h2>
+      <ol data-a style="--i:2;padding-left:40px;display:flex;flex-direction:column;gap:6px">
+        <li>Finalidade</li><li>Anatomia</li><li>Variantes e estados</li><li>Comportamento</li><li>Conteúdo</li><li>Acessibilidade</li><li>Tokens e implementação</li>
+      </ol>
+      <p class="small" data-a style="--i:3">Botão, campo de busca, cartão de disciplina e mensagem de sistema. O mesmo arquivo alimenta o repositório e a aba Docs: não existe cópia para desatualizar.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Pacote de handoff -->
+<section class="slide glow" aria-label="Pacote de handoff">
+  <div class="crit" data-a style="--i:0"><span>4.4</span>Regras, estados e decisões</div>
+  <span class="kicker" data-a style="--i:0">Pacote de handoff</span>
+  <h2 data-a style="--i:1;margin-top:16px">O que o time recebe para construir certo.</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:48px">
+    <div class="card col" data-a="pop" style="--i:2;gap:14px;padding:36px 40px"><h3>Tokens</h3><p class="small">115 variáveis do Figma numa fonte única; o tema do Tailwind espelha os mesmos valores.</p><span class="mono small accent">src/styles/figma-tokens.css · .json</span></div>
+    <div class="card col" data-a="pop" style="--i:3;gap:14px;padding:36px 40px"><h3>Componentes</h3><p class="small">4 páginas em 7 seções, ligadas à aba Docs; cada variante e estado é uma história no Storybook.</p><span class="mono small accent">docs/componentes/*.md</span></div>
+    <div class="card col" data-a="pop" style="--i:4;gap:14px;padding:36px 40px"><h3>Fluxo e comportamento</h3><p class="small">5 telas e 4 estados ligados, o que cada saída faz e qual duração cada transição usa.</p><span class="mono small accent">Storybook · Projeto/Protótipo</span></div>
+    <div class="card col" data-a="pop" style="--i:5;gap:14px;padding:36px 40px"><h3>Decisões e pendências</h3><p class="small">30 decisões com motivo e alternativa descartada; pendências com impacto e próxima ação.</p><span class="mono small accent">docs/decisoes.md · docs/handoff.md</span></div>
+  </div>
+  <p class="small" data-a style="--i:6;margin-top:32px">Assets locais (ilustrações 3D, fotos e ícones), nenhuma URL temporária do Figma. Build offline para abrir sem instalar nada.</p>
+</section>
+
+<!-- Encerramento -->
+<section class="slide glow" aria-label="Encerramento">
+  <div class="float ill" aria-hidden="true" style="background-position:0% 0%;left:1380px;top:120px;width:300px"></div>
+  <div class="float ill" aria-hidden="true" style="background-position:100% 0%;left:1500px;top:600px;width:260px;animation-delay:-2s"></div>
+  <div class="col" style="height:100%;justify-content:center;gap:40px">
+    <span class="kicker" data-a style="--i:0">O caso Marina</span>
+    <h1 data-a style="--i:1;font-size:144px">Escolher.<br>Comparar.<br><span class="accent">Garantir.</span></h1>
+    <p data-a style="--i:2;max-width:1000px">Um sistema que decide pelos mesmos motivos em cada pixel. Próximo passo: o teste com uma pessoa real, no celular, sem explicação.</p>
+    <span class="pill" data-a style="--i:3;align-self:flex-start">Obrigado</span>
+  </div>
+</section>
+
+</div>
+<div id="bar"></div>
+<div id="hint">← → navegar · F tela cheia</div>
+<div id="count"></div>
+<script>
+const slides = [...document.querySelectorAll('.slide')], stage = document.getElementById('stage');
+let cur = Math.min(Math.max(parseInt(location.hash.slice(1)) - 1 || 0, 0), slides.length - 1);
+function fit() { const s = Math.min(innerWidth / 1920, innerHeight / 1080); stage.style.transform = `scale(${s}) translate(-50%, -50%)`; }
+function go(n) {
+  cur = Math.max(0, Math.min(slides.length - 1, n));
+  slides.forEach((s, i) => s.classList.toggle('on', i === cur));
+  document.getElementById('bar').style.width = ((cur + 1) / slides.length * 100) + '%';
+  document.getElementById('count').textContent = `${cur + 1} / ${slides.length}`;
+  history.replaceState(null, '', '#' + (cur + 1));
+}
+addEventListener('keydown', e => {
+  if (['ArrowRight', 'PageDown', ' ', 'Enter'].includes(e.key)) go(cur + 1);
+  else if (['ArrowLeft', 'PageUp', 'Backspace'].includes(e.key)) go(cur - 1);
+  else if (e.key === 'Home') go(0);
+  else if (e.key === 'End') go(slides.length - 1);
+  else if (e.key === 'f' || e.key === 'F') document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+  else return;
+  e.preventDefault();
+  document.getElementById('hint').style.opacity = 0;
+});
+addEventListener('click', e => { if (!e.target.closest('button')) go(cur + (e.clientX < innerWidth / 3 ? -1 : 1)); });
+addEventListener('resize', fit);
+fit(); go(cur);
+</script>
+</body>
+</html>
